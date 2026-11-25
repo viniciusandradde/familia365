@@ -6,3 +6,9 @@ são cadastradas no próprio aparelho (`familia365-people-v1` no LocalStorage). 
 pois os nomes gravados localmente entram no seletor automaticamente. Cache do service worker: `familia365-static-v5`.
 Observação: versões anteriores do `index.html` permanecem no histórico público do Git; reescrever o histórico exige decisão
 do responsável (force push não é feito por agentes).
+
+## Metas financeiras nos sonhos (2026-11-25)
+Cada sonho pode ter valor-alvo e valor já reservado (gravados em centavos inteiros: `target_cents`, `reserved_cents`) e prazo
+(`due`, AAAA-MM-DD). O card mostra progresso, quanto falta e o aporte mensal simples (sem juros) até o prazo. Tudo continua no
+aparelho; o backup do painel valida os campos novos e aceita backups antigos sem eles. Base para a integração autenticada futura
+com o FiscalFlow (goal_id, valor-alvo, prazo, reserva, progresso), que ainda não existe. Cache do service worker: `familia365-static-v6`.
