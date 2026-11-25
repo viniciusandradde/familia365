@@ -25,3 +25,5 @@ function importLink(){
  }catch{$('status').textContent='Não foi possível importar este link. Nenhum registro foi alterado.';}
 }
 window.addEventListener('hashchange',importLink);importLink();
+
+const paste=document.createElement('textarea');paste.placeholder='Cole aqui o código de importação recebido no ChatGPT';paste.setAttribute('aria-label','Código de importação');const btn=document.createElement('button');btn.textContent='Importar código sem substituir dados';$('status').before(paste,btn);btn.onclick=()=>{try{const raw=paste.value.trim();const d=JSON.parse(raw);location.hash='import='+encodeURIComponent(JSON.stringify(d));}catch{$('status').textContent='Código inválido.';}};
