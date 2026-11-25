@@ -11,3 +11,17 @@ $('form').onsubmit=e=>{e.preventDefault();const title=$('title').value.trim();if
 $('export').onclick=()=>{const a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify({version:1,items},null,2)],{type:'application/json'}));a.href=u;a.download='familia365-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);};
 $('import').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw Error();const d=JSON.parse(await f.text());if(d.version!==1||!Array.isArray(d.items)||!d.items.every(valid)||new Set(d.items.map(x=>x.id)).size!==d.items.length)throw Error();if(confirm('Substituir todos os registros locais pelo backup?')){if(persist(d.items)){$('form').hidden=false;reset();$('status').textContent='Backup restaurado.';}}}catch{$('status').textContent='Backup inválido.';}finally{e.target.value='';}};
 render();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{$('status').textContent='Modo offline não disponível neste navegador.';});
+
+function importLink(){
+ const prefix='#import=';if(!location.hash.startsWith(prefix))return;
+ try{
+ if($('form').hidden)throw Error('Armazenamento indisponível');
+ const raw=location.hash.slice(prefix.length);if(raw.length>30000)throw Error('Link muito grande');
+ const d=JSON.parse(decodeURIComponent(raw));if(d.version!==1||!Array.isArray(d.items)||d.items.length>100||!d.items.every(x=>valid(x)&&x.id.length<=100&&x.notes.length<=4000&&x.title.trim())||new Set(d.items.map(x=>x.id)).size!==d.items.length)throw Error('Dados inválidos');
+ const known=new Set(items.map(x=>x.id));const fresh=d.items.filter(x=>!known.has(x.id)).map(x=>({id:x.id,title:x.title,tab:x.tab,area:x.area,horizon:x.horizon,due:x.due,notes:x.notes,done:x.done}));
+ if(!fresh.length){$('status').textContent='Registros já importados.';history.replaceState(null,'',location.pathname+location.search);return;}
+ if(!confirm('Adicionar '+fresh.length+' registros ao Família365, preservando os atuais?\n\n'+fresh.map(x=>x.title).join('\n')))return;
+ if(persist([...items,...fresh])){$('status').textContent=fresh.length+' registros adicionados.';history.replaceState(null,'',location.pathname+location.search);}
+ }catch{$('status').textContent='Não foi possível importar este link. Nenhum registro foi alterado.';}
+}
+window.addEventListener('hashchange',importLink);importLink();
