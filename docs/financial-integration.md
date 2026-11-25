@@ -1,0 +1,2 @@
+# Integração financeira
+FiscalFlow será o sistema financeiro separado; Família365 permanece local-first. Integração futura por metas, com consentimento e autenticação, sem dados financeiros no Git. Reaproveitar seletivamente recursos de wealth-vision-system, lucid-cash, Financial-firefly e financeiro-bot. Priorizar segurança, orçamento e cartões. Especificação e auditoria: https://github.com/viniciusandradde/fiscal-flow-ai-core/blob/main/docs/FAMILY-FINANCE-ROADMAP.md
