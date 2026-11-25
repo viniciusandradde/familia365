@@ -1,0 +1,15 @@
+create table public.families(id uuid primary key default gen_random_uuid(),name text not null);
+create table public.memberships(user_id uuid primary key references auth.users(id) on delete cascade,family_id uuid not null references public.families(id));
+create table public.items(id uuid primary key,owner_id uuid not null references auth.users(id),family_id uuid not null references public.families(id),title text not null check(length(title) between 1 and 500),kind text not null,visibility text not null check(visibility in ('private','shared')),done boolean not null default false,due date,version integer not null default 1 check(version>0));
+alter table public.families enable row level security;
+alter table public.memberships enable row level security;
+alter table public.items enable row level security;
+create policy own_membership on public.memberships for select to authenticated using(user_id=auth.uid());
+create policy family_read on public.families for select to authenticated using(id in(select family_id from public.memberships where user_id=auth.uid()));
+create policy item_read on public.items for select to authenticated using(family_id in(select family_id from public.memberships where user_id=auth.uid()) and (owner_id=auth.uid() or visibility='shared'));
+create policy item_insert on public.items for insert to authenticated with check(owner_id=auth.uid() and family_id in(select family_id from public.memberships where user_id=auth.uid()));
+create policy item_update on public.items for update to authenticated using(owner_id=auth.uid() and family_id in(select family_id from public.memberships where user_id=auth.uid())) with check(owner_id=auth.uid() and family_id in(select family_id from public.memberships where user_id=auth.uid()));
+revoke all on public.families,public.memberships,public.items from anon,authenticated;
+grant select on public.families,public.memberships,public.items to authenticated;
+grant insert on public.items to authenticated;
+grant update(done,version) on public.items to authenticated;
