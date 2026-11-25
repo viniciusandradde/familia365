@@ -1,0 +1,5 @@
+# Integração (proposta, não implantada)
+Organização Família365 separada da empresa; aprovação humana; orçamento inicial e credenciais a definir. Começar por coordenador e agente de metodologia, depois ampliar mediante avaliação.
+Paperclip possui adaptadores hermes_local (mesmo host de execução) e hermes_gateway (API separada). Fonte: https://github.com/paperclipai/paperclip/blob/master/packages/adapters/hermes/README.md
+Para ambientes Docker/Dokploy independentes considerar gateway em rede privada, TLS quando necessário, credenciais em secrets, escopo mínimo e workspaces separados. Não gravar segredos em Git. Desabilitar persistência de conteúdo íntimo; testar isolamento e logs antes da produção.
+Criar tarefas P0 e P1 do plano, atribuir responsáveis e aprovar antes de ativar. Não importar automaticamente dados privados da família. Status: sem acesso à instância para criação ou testes. Configuração depende da versão instalada.
