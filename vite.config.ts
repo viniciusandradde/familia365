@@ -1,0 +1,2 @@
+import {defineConfig} from 'vite'; import {VitePWA} from 'vite-plugin-pwa';
+export default defineConfig({plugins:[VitePWA({registerType:'autoUpdate',includeAssets:['icon.svg'],manifest:{name:'Família365',short_name:'Família365',lang:'pt-BR',start_url:'/',display:'standalone',theme_color:'#557663',background_color:'#fcfaf6',icons:[{src:'/icon.svg',sizes:'any',type:'image/svg+xml',purpose:'any'}]},workbox:{globPatterns:['**/*.{js,css,html,svg}']}})]});
