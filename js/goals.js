@@ -30,3 +30,20 @@ export function goalsFile(items = [], dreams = []) {
   }
   return { format: 'familia365.goal', version: 1, goals };
 }
+
+// Metas vindas do FiscalFlow (mesmo contrato): atualiza o item de Sonhos com o mesmo id ou cria um novo; nunca apaga.
+export function mergeGoals(list, file) {
+  if (!file || file.format !== 'familia365.goal' || file.version !== 1 || !Array.isArray(file.goals)) throw Error('Arquivo de metas inválido');
+  const brl = c => 'R$ ' + (c / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const next = list.slice();
+  let count = 0;
+  for (const g of file.goals) {
+    if (!g || typeof g.id !== 'string' || !g.name || !(g.target_cents > 0)) continue;
+    const title = (String(g.name).slice(0, 170) + ' ' + brl(g.target_cents)).trim(), due = /^\d{4}-\d{2}-\d{2}$/.test(g.due_date || '') ? g.due_date : '';
+    const i = next.findIndex(x => x.id === g.id);
+    if (i >= 0) next[i] = { ...next[i], title, due };
+    else next.push({ id: g.id, tab: 'Sonhos', title, area: '', horizon: '', due, notes: 'Meta do FiscalFlow', done: false });
+    count++;
+  }
+  return { items: next, count };
+}
