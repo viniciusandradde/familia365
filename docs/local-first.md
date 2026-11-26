@@ -12,3 +12,16 @@ Cada sonho pode ter valor-alvo e valor já reservado (gravados em centavos intei
 (`due`, AAAA-MM-DD). O card mostra progresso, quanto falta e o aporte mensal simples (sem juros) até o prazo. Tudo continua no
 aparelho; o backup do painel valida os campos novos e aceita backups antigos sem eles. Base para a integração autenticada futura
 com o FiscalFlow (goal_id, valor-alvo, prazo, reserva, progresso), que ainda não existe. Cache do service worker: `familia365-static-v6`.
+
+## Backup completo v2 e restauração com prévia (2026-11-26, etapa 1 da nova interface)
+"Fazer backup completo" gera um arquivo só (`familia365-backup-AAAA-MM-DD.json`, compartilhado pelo `navigator.share` quando
+o aparelho permite, senão baixado) no formato `{format:"familia365.backup", version:2, exported_at, items, dreams, people}`:
+lista, sonhos com as fotos e pessoas. A data do último backup fica em `familia365-meta-v1` e o app pede
+`navigator.storage.persist()`. "Restaurar de um arquivo" lê o v2 e os backups antigos (lista `{version:1, items}` e painel
+`{version:1, vision}`), mostra a prévia arquivo × aparelho e oferece **Juntar** (padrão: entra só o que falta, por id; pessoas
+por nome; nada é apagado nem sobrescrito) ou **Substituir tudo** (só as partes que o arquivo traz: um backup antigo da lista
+não apaga os sonhos). Antes de gravar, o estado atual vai para `familia365-undo-v1`, e "Desfazer a última restauração" fica na
+seção até a próxima restauração; sem espaço para essa cópia, "Substituir" não acontece. Importações avançadas (código colado,
+link `#import=`, metas do FiscalFlow) ficam em "Outras importações"; "Exportar metas" usa `target_cents`/`reserved_cents` dos
+sonhos do painel e ainda aceita os itens de Sonhos com valor no título. Lógica pura em `js/backup.js` e `js/goals.js`
+(`node --test tests/*.test.mjs`); interface em `js/dados.js` e `dados.css`. Cache do service worker: `familia365-static-v7`.
