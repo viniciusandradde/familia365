@@ -1,4 +1,4 @@
-// Casca do app (etapas 2 e 3 da nova interface): rotas, cabeçalho, barra inferior, botão "+", tela Hoje (captura em uma
+// Casca do app (etapas 2 a 5 da nova interface): rotas, cabeçalho, barra inferior, botão "+", tela Hoje (captura em uma
 // linha, seções, concluir com done_at), listas das outras telas, folha Anotar/Editar e importações. Grava as mesmas chaves
 // de antes (familia365-v1); os campos novos dos itens (done_at, scope, time, night) são opcionais.
 import { parseRoute, hashFor } from './router.js';
@@ -11,6 +11,7 @@ import { mergeGoalsDreams } from './goals.js';
 import { migrarSonhosDaLista } from './painel.js';
 import { $, el, icon, aviso, abrirFolha, fecharFolha, prepararFolhas } from './ui.js';
 import { iniciarSonhos } from './sonhos.js';
+import { iniciarFamilia } from './familia-ui.js';
 
 const KEY = 'familia365-v1', META = 'familia365-meta-v1', VKEY = 'familia365-vision-v1';
 let items = [], bloqueado = false, rotaAtual = null, editando = null;
@@ -133,7 +134,7 @@ function cartaoRevisao(today) {
     el('span', { className: 'icone-redondo', 'aria-hidden': 'true' }, icon('revisao', 'i--20')),
     el('div', {}, el('h2', { id: 's-rev', text: 'Revisão da semana' }), el('p', { text: 'Uns 10 minutos, quando for bom para vocês.' })),
     el('div', { className: 'acoes' }, el('button', { className: 'btn btn-texto btn-texto--neutro', type: 'button', onclick: agoraNao }, 'Agora não'),
-      el('a', { className: 'btn btn-tonal', href: '#/familia' }, 'Começar')));
+      el('button', { className: 'btn btn-tonal', type: 'button', onclick: () => familia.abrirRevisao() }, 'Começar')));
 }
 const vazioHoje = () => el('div', { className: 'vazio' }, icon('sol'),
   el('h2', { text: 'Nada para hoje ainda.' }), el('p', { text: 'Que tal uma pequena ação?' }),
@@ -161,7 +162,11 @@ function renderListas() {
     el('ul', { className: 'lista' }, ...proximos.map(x => itemRow(x, today, false, true))))] : []),
   ...groupPlanos(items).map(g => el('section', { className: 'secao', 'aria-label': g.tab },
     el('h2', { className: 'secao-titulo', text: g.tab }), lista(g.items, today, 'Nada aqui ainda.'))));
-  $('lista-familia').replaceChildren(lista(itemsForScreen(items, 'familia', today), today, 'Nada anotado para a revisão da semana.'));
+  // Família: itens abertos da aba Revisão semanal (as revisões concluídas vão para o histórico, em js/familia-ui.js).
+  const paraRevisao = itemsForScreen(items, 'familia', today).filter(x => !x.done);
+  $('lista-familia').replaceChildren(...(paraRevisao.length ? [el('section', { className: 'secao', 'aria-labelledby': 't-para-revisao' },
+    el('h2', { className: 'secao-titulo', id: 't-para-revisao', text: 'Anotado para a revisão' }), lista(paraRevisao, today, ''))] : []));
+  familia.render();
 }
 // Captura em uma linha: Enter grava na aba Hoje, o item entra no topo e o campo continua focado.
 $('form-captura').addEventListener('submit', e => {
@@ -271,6 +276,7 @@ $('item-excluir').addEventListener('click', () => {
 // ---------- Rotas ----------
 migrarSonhos();
 const sonhos = iniciarSonhos();
+const familia = iniciarFamilia({ itens: () => items, gravar: (next, texto) => persist(next, texto), sonhos });
 function focarTitulo() {
   const h = document.querySelector('.tela:not([hidden]) h1');
   if (h) h.focus({ preventScroll: false });
@@ -289,6 +295,7 @@ function mostrar(rota, focar) {
   rotaAtual = rota;
   if (mudou) window.scrollTo(0, 0);
   if (mudou || focar) focarTitulo();
+  if (rota === 'familia') familia.render(); // abre a revisão pedida no cartão de domingo e põe o foco nela
 }
 function rotear() {
   const r = parseRoute(location.hash);

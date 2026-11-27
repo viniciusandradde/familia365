@@ -3,6 +3,8 @@
 // escopo e pessoa; folhas de sonho, "Guardar valor", "Mudar prazo" e opções. Fotos novas vão para o IndexedDB
 // (js/fotos.js) e o sonho guarda só a referência; as antigas em base64 continuam valendo e são movidas aos poucos.
 import { upsertDream, removeById, peopleList, toCents } from './itens.js';
+import { FKEY, lerFamilia, coresDasPessoas } from './familia.js';
+import { personKey } from './backup.js';
 import { estadoSonho, seloDoSonho, ESCOPO_ICONE, filtrosSonhos, filtrarSonhos, jaGuardado, reais, guardarValor, pausarSonho, mudarPrazo } from './painel.js';
 import { abrirFotos, moverFotos, fotosOrfas } from './fotos.js';
 import { isoDay } from './telas.js';
@@ -82,7 +84,13 @@ export function iniciarSonhos() {
     else prontas.then(s => s && s.get(x.photo_ref)).then(u => { if (u) { cache.set(x.photo_ref, u); img.src = u; } }).catch(() => {});
     return img;
   }
-  const quem = selo => el('span', { className: 'quem' }, icon(ESCOPO_ICONE[selo] || 'pessoa'), selo);
+  // Pessoa cadastrada aparece com a cor dela (bolinha com a inicial, decorativa) e o nome escrito; Meu/Casal/Família, com o ícone.
+  const cores = () => { let f = null; try { f = JSON.parse(localStorage.getItem(FKEY) || 'null'); } catch { /* sem cores */ } return coresDasPessoas(extras(), lerFamilia(f).cores); };
+  const marca = (selo, extra) => {
+    const c = !ESCOPO_ICONE[selo] && extras().some(n => personKey(n) === personKey(selo)) ? cores()[personKey(selo)] : '';
+    return c ? el('span', { className: 'av p-' + c, 'aria-hidden': 'true', text: selo.trim().charAt(0).toLocaleUpperCase('pt-BR') }) : icon(ESCOPO_ICONE[selo] || 'pessoa', extra);
+  };
+  const quem = selo => el('span', { className: 'quem' }, marca(selo), selo);
   function linha(className, partes) {
     const p = el('p', { className });
     partes.filter(Boolean).forEach((x, i) => { if (i) p.append(el('span', { className: 'sep', 'aria-hidden': 'true', text: '·' })); p.append(x); });
@@ -112,7 +120,7 @@ export function iniciarSonhos() {
     acoes.append(el('button', { className: 'btn-icone', type: 'button', 'aria-label': 'Mais opções: ' + x.title, 'data-opcoes': x.id, onclick: () => abrirOpcoes(x) }, icon('opcoes')));
     corpo.append(acoes);
     const capa = el('div', { className: 'sonho-foto' }, temFoto ? foto(x) : ilustracao());
-    if (temFoto) capa.append(el('span', { className: 'selo-foto' }, icon(ESCOPO_ICONE[selo] || 'pessoa', 'i--18'), selo));
+    if (temFoto) capa.append(el('span', { className: 'selo-foto' }, marca(selo, 'i--18'), selo));
     return el('article', { className: 'sonho' + (temFoto ? '' : ' sonho--compacto') + (x.paused ? ' sonho--pausado' : ''), 'aria-labelledby': hid }, capa, corpo);
   }
 
@@ -224,7 +232,10 @@ export function iniciarSonhos() {
     const x = achar(alvo), c = toCents($('guardar-valor').value);
     if (!c) { $('guardar-erro').hidden = false; $('guardar-valor').focus(); return; }
     fecharFolha($('folha-guardar'));
-    if (x && save(guardarValor(data, x.id, c), reais(c) + ' somados a ' + x.title)) focarOpcoes(x.id);
+    if (x && save(guardarValor(data, x.id, c), reais(c) + ' somados a ' + x.title)) {
+      document.dispatchEvent(new CustomEvent('familia365:guardado', { detail: { id: x.id, cents: c } })); // a revisão da semana anota
+      focarOpcoes(x.id);
+    }
   });
 
   function abrirPrazo(x) {
@@ -270,5 +281,5 @@ export function iniciarSonhos() {
   }).catch(() => {});
 
   draw();
-  return { abrirNovo: () => abrir(null), recarregar: () => { ler(); draw(); } };
+  return { abrirNovo: () => abrir(null), recarregar: () => { ler(); draw(); }, guardar: id => { const x = achar(id); if (x) abrirGuardar(x); }, lista: () => data.slice() };
 }

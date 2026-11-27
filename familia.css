@@ -1,0 +1,57 @@
+/* Tela Família (etapa 5): revisão da semana, pessoas, Conversa de domingo e histórico. Componentes base em tokens.css. */
+.rev-chamada { display: grid; grid-template-columns: 40px 1fr; gap: var(--s2) var(--s3); align-items: center; margin-top: var(--s4); }
+.rev-chamada h2 { font: 700 var(--fs-card)/1.2 var(--font-serif); }
+.rev-chamada p { color: var(--ink-2); font-size: var(--fs-small); }
+.rev-chamada .btn { grid-column: 2; justify-self: start; }
+#familia-revisao .revisao { margin-top: var(--s4); }
+.revisao h2:focus { outline: none; }
+.rev-corpo { display: grid; gap: var(--s4); margin-top: var(--s4); }
+.rev-corpo .grupo { margin-top: 0; }
+.rev-corpo .rotulo { display: block; margin-bottom: var(--s1); color: var(--ink-2); font-size: var(--fs-small); font-weight: 600; }
+.rev-corpo textarea.campo { min-height: 88px; padding-top: var(--s2); resize: vertical; }
+.rev-vazio { color: var(--ink-2); }
+.rev-certo, .rev-pend { display: grid; gap: var(--s2); margin: 0; padding: 0; list-style: none; }
+.rev-certo li { display: flex; gap: var(--s2); align-items: flex-start; line-height: 1.4; }
+.rev-certo .i { flex: none; margin-top: 1px; color: var(--primary); stroke-width: 2.4; }
+.rev-pend label { display: flex; align-items: center; gap: var(--s3); min-height: var(--target); cursor: pointer; }
+.rev-pend .caixa { flex: none; }
+.rev-pend-texto { display: grid; }
+.rev-sonho { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
+.rev-sonho .btn { flex: none; }
+.so-conversa { display: none; }
+
+/* Modo conversa: letras grandes, sem controles de editar (para usar à mesa). */
+.revisao--conversa { font-size: 1.25rem; }
+.revisao--conversa h2 { font-size: 2rem; }
+.revisao--conversa h2 + p, .revisao--conversa .passo-info, .revisao--conversa .item-meta { font-size: 1.125rem; }
+.revisao--conversa .pendente-titulo, .revisao--conversa .rev-certo li { font-size: 1.375rem; }
+.revisao--conversa .editavel, .revisao--conversa .rev-pend li:not(.escolhida) { display: none; }
+.revisao--conversa .rev-pend .caixa { display: none; }
+.revisao--conversa .so-conversa { display: block; font-weight: 600; }
+
+/* Pessoas */
+button.pessoa { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+button.pessoa:hover { background: var(--surface-tint); }
+button.pessoa:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.lista li + li > .pessoa, .lista li + li > .linha-acao { border-top: 1px solid var(--line); }
+.chip .av { width: 18px; height: 18px; }
+#folha-pessoa .chips { margin-top: var(--s1); }
+
+/* Conversa de domingo */
+.combinado-form { margin-top: var(--s4); }
+.combinado-form .rotulo { display: block; margin-bottom: var(--s1); font-weight: 600; }
+.combinado-linha { display: flex; gap: var(--s2); }
+.combinado-linha .campo { flex: 1; min-width: 0; }
+.combinados { display: grid; margin: var(--s4) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.combinados li { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
+.combinados p { line-height: 1.4; }
+.combinados .item-meta { display: block; }
+
+/* Histórico e deixados de lado */
+.historico summary { padding: var(--s3) var(--s4); min-height: var(--target); cursor: pointer; font-weight: 600; }
+.historico li + li { border-top: 1px solid var(--line); }
+.historico-texto { padding: 0 var(--s4) var(--s4); white-space: pre-line; color: var(--ink-2); line-height: 1.5; }
+.soltos li { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); padding: var(--s1) var(--s1) var(--s1) var(--s4); }
+.soltos li + li { border-top: 1px solid var(--line); }
+#lista-familia .secao:first-child { margin-top: var(--s6); }
+#familia-conteudo > .secao { margin-top: 2rem; }
