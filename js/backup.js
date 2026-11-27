@@ -6,6 +6,7 @@ export const BASE_PEOPLE = ['Minha visão', 'Casal', 'Família'];
 const PHOTO = /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const ALL = ['items', 'dreams', 'people'];
+const VAZIA = () => ({ cores: {}, combinados: [] });
 
 export class BackupError extends Error {}
 const fail = msg => { throw new BackupError(msg); };
@@ -20,13 +21,14 @@ export const SCOPES = ['eu', 'casal', 'familia'];
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const validExtras = x => (x.done_at === undefined || x.done_at === '' || (typeof x.done_at === 'string' && !Number.isNaN(Date.parse(x.done_at)))) &&
   (x.scope === undefined || SCOPES.includes(x.scope)) && (x.time === undefined || x.time === '' || TIME.test(x.time)) &&
-  (x.night === undefined || typeof x.night === 'boolean');
+  (x.night === undefined || typeof x.night === 'boolean') && (x.dropped === undefined || typeof x.dropped === 'boolean');
 export function itemExtras(x) {
   const e = {};
   if (x.done && typeof x.done_at === 'string' && !Number.isNaN(Date.parse(x.done_at))) e.done_at = x.done_at;
   if (SCOPES.includes(x.scope)) e.scope = x.scope;
   if (TIME.test(x.time || '')) e.time = x.time;
   if (x.night === true) e.night = true;
+  if (x.done && x.dropped === true) e.dropped = true; // etapa 5: concluído como "deixado de lado" (recuperável)
   return e;
 }
 // Mesmas regras da restauração do painel do antigo vision.js.
@@ -58,16 +60,35 @@ export function cleanDream(x) {
     photo: PHOTO.test(s('photo')) ? x.photo : '', target_cents: cents(x.target_cents), reserved_cents: cents(x.reserved_cents),
     due: DAY.test(s('due')) ? x.due : '', ...dreamExtras(x) };
 }
-const personKey = n => n.trim().toLocaleLowerCase('pt-BR');
+export const personKey = n => n.trim().toLocaleLowerCase('pt-BR');
+// Etapa 5 (familia365-familia-v1): cores das pessoas (nome em minúsculas → cor da paleta) e combinados da Conversa de
+// domingo ({id, text, date}). Leitura tolerante: o que não for válido fica de fora, sem recusar o resto.
+export const PALETA = ['azul', 'terracota', 'verde', 'lavanda', 'ameixa', 'caramelo'];
+export function cleanFamilia(f) {
+  const out = VAZIA();
+  if (!f || typeof f !== 'object' || Array.isArray(f)) return out;
+  if (f.cores && typeof f.cores === 'object' && !Array.isArray(f.cores)) {
+    for (const [k, v] of Object.entries(f.cores)) if (validPerson(k) && PALETA.includes(v)) out.cores[personKey(k)] = v;
+  }
+  const ids = new Set();
+  for (const c of Array.isArray(f.combinados) ? f.combinados : []) {
+    if (!c || typeof c.id !== 'string' || !c.id || c.id.length > 100 || ids.has(c.id) || typeof c.text !== 'string' || !c.text.trim() ||
+      c.text.length > 200 || typeof c.date !== 'string' || !DAY.test(c.date)) continue;
+    ids.add(c.id);
+    out.combinados.push({ id: c.id, text: c.text, date: c.date });
+  }
+  out.combinados.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  return out;
+}
 function uniquePeople(list) {
   const seen = new Set(), out = [];
   for (const n of list) { const k = personKey(n); if (!seen.has(k)) { seen.add(k); out.push(n.trim()); } }
   return out;
 }
 
-export function buildBackup({ items = [], dreams = [], people = [], exportedAt = new Date().toISOString() } = {}) {
+export function buildBackup({ items = [], dreams = [], people = [], familia = null, exportedAt = new Date().toISOString() } = {}) {
   return { format: 'familia365.backup', version: 2, exported_at: exportedAt, items: items.map(cleanItem),
-    dreams: dreams.map(cleanDream), people: uniquePeople(people.filter(validPerson)) };
+    dreams: dreams.map(cleanDream), people: uniquePeople(people.filter(validPerson)), ...(familia ? { familia: cleanFamilia(familia) } : {}) };
 }
 
 function checkItems(list) {
@@ -96,16 +117,19 @@ export function parseBackup(text) {
   if (d.format === 'familia365.backup') {
     if (d.version !== 2) fail(d.version > 2 ? 'Backup feito numa versão mais nova do app. Atualize o Família365 e tente de novo.' : 'Versão de backup não reconhecida.');
     const exportedAt = typeof d.exported_at === 'string' && !Number.isNaN(Date.parse(d.exported_at)) ? d.exported_at : '';
-    return { items: checkItems(d.items), dreams: checkDreams(d.dreams), people: checkPeople(d.people ?? []), kind: 'v2', covers: ALL.slice(), exportedAt };
+    return { items: checkItems(d.items), dreams: checkDreams(d.dreams), people: checkPeople(d.people ?? []), familia: cleanFamilia(d.familia),
+      kind: 'v2', covers: d.familia ? [...ALL, 'familia'] : ALL.slice(), exportedAt };
   }
-  if (d.version === 1 && Array.isArray(d.items)) return { items: checkItems(d.items), dreams: [], people: [], kind: 'lista', covers: ['items'], exportedAt: '' };
-  if (d.version === 1 && Array.isArray(d.vision)) return { items: [], dreams: checkDreams(d.vision), people: [], kind: 'painel', covers: ['dreams'], exportedAt: '' };
+  if (d.version === 1 && Array.isArray(d.items)) return { items: checkItems(d.items), dreams: [], people: [], familia: VAZIA(), kind: 'lista', covers: ['items'], exportedAt: '' };
+  if (d.version === 1 && Array.isArray(d.vision)) return { items: [], dreams: checkDreams(d.vision), people: [], familia: VAZIA(), kind: 'painel', covers: ['dreams'], exportedAt: '' };
   fail('Arquivo não reconhecido como backup do Família365.');
 }
 
 const hasPhoto = x => !!(x.photo || x.photo_ref);
 const extraPeople = list => list.filter(n => !BASE_PEOPLE.some(b => personKey(b) === personKey(n)));
 
+const fam = s => s.familia || VAZIA();
+const novosCombinados = (device, file) => { const ids = new Set(fam(device).combinados.map(c => c.id)); return fam(file).combinados.filter(c => !ids.has(c.id)); };
 export function summarize(device, file) {
   const itemIds = new Set(device.items.map(x => x.id)), dreamIds = new Set(device.dreams.map(x => x.id));
   const known = new Set(device.people.map(personKey));
@@ -116,8 +140,9 @@ export function summarize(device, file) {
     dreams: { file: file.dreams.length, device: device.dreams.length, new: newDreams.length },
     photos: { file: file.dreams.filter(hasPhoto).length, device: device.dreams.filter(hasPhoto).length, new: newDreams.filter(hasPhoto).length },
     people: { file: filePeople.length, device: devicePeople.length, new: filePeople.filter(n => !known.has(personKey(n))).length },
+    combinados: { file: fam(file).combinados.length, device: fam(device).combinados.length, new: novosCombinados(device, file).length },
   };
-  s.totalNew = s.items.new + s.dreams.new + s.people.new;
+  s.totalNew = s.items.new + s.dreams.new + s.people.new + s.combinados.new;
   return s;
 }
 
@@ -125,11 +150,16 @@ export function summarize(device, file) {
 export function merge(device, file) {
   const items = device.items.slice(), dreams = device.dreams.slice(), people = uniquePeople(device.people);
   const itemIds = new Set(items.map(x => x.id)), dreamIds = new Set(dreams.map(x => x.id)), known = new Set(people.map(personKey));
-  const added = { items: 0, dreams: 0, photos: 0, people: 0 };
+  const added = { items: 0, dreams: 0, photos: 0, people: 0 }, extra = {};
+  if ((file.covers || []).includes('familia')) { // a parte Família só muda quando o arquivo a traz
+    const novos = novosCombinados(device, file), d = fam(device);
+    extra.familia = { ...d, cores: { ...fam(file).cores, ...d.cores }, combinados: cleanFamilia({ combinados: [...d.combinados, ...novos] }).combinados };
+    added.combinados = novos.length;
+  }
   for (const x of file.items) if (!itemIds.has(x.id)) { itemIds.add(x.id); items.push(x); added.items++; }
   for (const x of file.dreams) if (!dreamIds.has(x.id)) { dreamIds.add(x.id); dreams.push(x); added.dreams++; if (x.photo) added.photos++; }
   for (const n of extraPeople(file.people)) if (!known.has(personKey(n))) { known.add(personKey(n)); people.push(n.trim()); added.people++; }
-  return { items, dreams, people, added };
+  return { items, dreams, people, ...extra, added };
 }
 
 // "Substituir tudo": o aparelho fica igual ao arquivo nas partes que ele traz (um backup antigo da lista não apaga os sonhos).
@@ -137,7 +167,8 @@ export function replace(device, file) {
   const covers = file.covers || ALL;
   return { items: covers.includes('items') ? file.items.slice() : device.items.slice(),
     dreams: covers.includes('dreams') ? file.dreams.slice() : device.dreams.slice(),
-    people: covers.includes('people') ? file.people.slice() : device.people.slice() };
+    people: covers.includes('people') ? file.people.slice() : device.people.slice(),
+    ...(covers.includes('familia') ? { familia: { ...fam(file), ...(fam(device).rascunho ? { rascunho: fam(device).rascunho } : {}) } } : {}) };
 }
 
 // "há 12 dias · 14 de novembro" (dias de calendário, no fuso do aparelho).

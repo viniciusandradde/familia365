@@ -123,3 +123,39 @@ test('backup v2 guarda e devolve os campos novos; backup antigo da lista continu
   assert.deepEqual(Object.keys(antigo.items[0]), ['id', 'tab', 'done', 'title', 'area', 'horizon', 'due', 'notes']);
   assert.throws(() => parseBackup(JSON.stringify({ version: 1, items: [{ id: 'a', tab: 'Hoje', done: false, title: 'F', area: '', horizon: '', due: '', notes: '', scope: 'chefe' }] })));
 });
+
+// ---------- Etapa 5: Família (cores, combinados) e itens deixados de lado ----------
+test('backup v2 leva a parte Família (cores e combinados, sem o rascunho) e itens deixados de lado', () => {
+  const familia = { cores: { ana: 'verde' }, combinados: [{ id: 'c1', text: 'Jantar juntos', date: '2026-11-29' }], rascunho: { passo: 2 } };
+  const item = { id: 'i1', title: 'Solto', tab: 'Pendências', done: true, done_at: '2026-11-29T10:00:00Z', dropped: true, area: '', horizon: '', due: '', notes: '' };
+  const b = buildBackup({ items: [item], familia, exportedAt: '2026-11-29T10:00:00.000Z' });
+  assert.deepEqual(b.familia, { cores: { ana: 'verde' }, combinados: familia.combinados });
+  assert.equal(b.items[0].dropped, true);
+  const p = parseBackup(JSON.stringify(b));
+  assert.deepEqual(p.familia, b.familia);
+  assert.ok(p.covers.includes('familia'));
+  assert.equal(p.items[0].dropped, true);
+});
+
+test('backups antigos e v2 sem Família continuam abrindo e não cobrem a parte Família', () => {
+  const v2 = parseBackup(JSON.stringify({ format: 'familia365.backup', version: 2, exported_at: '2026-11-26T10:00:00Z', items: [], dreams: [], people: [] }));
+  assert.deepEqual(v2.familia, { cores: {}, combinados: [] });
+  assert.ok(!v2.covers.includes('familia'));
+  assert.deepEqual(parseBackup(JSON.stringify({ version: 1, items: [] })).familia, { cores: {}, combinados: [] });
+});
+
+test('juntar e substituir: combinados por id, cores do aparelho primeiro, rascunho do aparelho fica', () => {
+  const device = { items: [], dreams: [], people: [], familia: { cores: { ana: 'verde' }, combinados: [{ id: 'c1', text: 'A', date: '2026-11-22' }], rascunho: { passo: 2 } } };
+  const file = { items: [], dreams: [], people: [], covers: ['items', 'dreams', 'people', 'familia'],
+    familia: { cores: { ana: 'azul', bia: 'ameixa' }, combinados: [{ id: 'c1', text: 'A', date: '2026-11-22' }, { id: 'c2', text: 'B', date: '2026-11-29' }] } };
+  const m = merge(device, file);
+  assert.deepEqual(m.familia.cores, { ana: 'verde', bia: 'ameixa' });
+  assert.deepEqual(m.familia.combinados.map(c => c.id), ['c2', 'c1']);
+  assert.deepEqual(m.familia.rascunho, { passo: 2 });
+  assert.equal(m.added.combinados, 1);
+  assert.equal(summarize(device, file).combinados.new, 1);
+  const r = replace(device, file);
+  assert.deepEqual(r.familia, { ...file.familia, rascunho: { passo: 2 } });
+  assert.equal(replace(device, { ...file, covers: ['items'] }).familia, undefined, 'sem a parte Família no arquivo, o aparelho fica como está');
+  assert.equal(merge(device, { ...file, covers: ['items'] }).familia, undefined);
+});
