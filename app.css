@@ -57,6 +57,7 @@ h1[tabindex="-1"]:focus, main:focus { outline: none; } /* foco levado por script
 .ritmo--chegou { display: flex; align-items: center; gap: var(--s1); color: var(--ink); font-weight: 600; }
 .ritmo--chegou .i { color: var(--primary); }
 .sonho--pausado .barra-progresso { opacity: .55; }
+.sonho-acoes { flex-wrap: wrap; row-gap: 0; }
 .sonho-acoes .btn-icone { margin-left: auto; }
 .sonho--compacto .sonho-acoes { margin-right: calc(-1 * var(--s2)); }
 .foto-previa { display: block; width: 100%; max-height: 220px; margin-top: var(--s3); border-radius: var(--r-md); object-fit: cover; }
@@ -105,3 +106,6 @@ html:has(.folha[open]) { overflow: hidden; }
 @media (min-width: 900px) {
   .titulo-tela { padding-top: var(--s5); }
 }
+.link-ritmo { display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; color: var(--primary);
+  font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.link-ritmo:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }

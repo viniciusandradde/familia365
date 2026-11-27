@@ -101,8 +101,8 @@ export function iniciarSonhos() {
     if (e.tipo === 'pausado') corpo.append(el('p', { className: 'ritmo', text: 'Pausado. Retome quando fizer sentido.' }));
     else if (e.tipo === 'alcancado') corpo.append(el('p', { className: 'ritmo ritmo--chegou' }, icon('check', 'i--18'), 'Vocês chegaram lá.'));
     else if (e.prazoPassado) {
-      corpo.append(el('p', { className: 'ritmo', text: 'Quer ajustar a data?' }));
-      acoes.append(el('button', { className: 'btn btn-texto', type: 'button', 'aria-label': 'Mudar prazo: ' + x.title, onclick: () => abrirPrazo(x) }, 'Mudar prazo'));
+      corpo.append(el('p', { className: 'ritmo' }, el('button', { className: 'link-ritmo', type: 'button', 'aria-label': 'Quer ajustar a data? Mudar prazo: ' + x.title,
+        'data-prazo': x.id, onclick: () => abrirPrazo(x) }, 'Quer ajustar a data?')));
     } else if (e.mensal) corpo.append(el('p', { className: 'ritmo', text: '≈ ' + reais(e.mensal) + '/mês até ' + e.prazo }));
     if (e.tipo === 'passo') {
       if (x.next_step) corpo.append(el('p', { className: 'sem-valor' }, 'Próximo passo: ', el('strong', { text: x.next_step })));
