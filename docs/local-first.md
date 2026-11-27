@@ -106,3 +106,35 @@ com o dia escrito ("sáb, 28/11").
 Mesmas chaves no LocalStorage. Lógica pura em `js/painel.js` e `js/fotos.js` (e `js/goals.js`, `js/telas.js`, `js/itens.js`,
 `js/backup.js`), com testes em `tests/painel.test.mjs`, `tests/fotos.test.mjs` (armazenamento falso no lugar do IndexedDB) e
 nos testes existentes. Cache do service worker: `familia365-static-v10`.
+
+## Família (2026-11-26, etapa 5 da nova interface)
+**Revisão da semana guiada** em `#/familia`, aberta pelo botão da tela ou pelo cartão de domingo da tela Hoje ("Começar" abre
+direto no passo 1). Cinco passos com "Passo N de 5", Voltar / Pular / Continuar e fechar (X) a qualquer momento: o rascunho
+fica em `familia365-familia-v1` (`rascunho`) e a tela mostra "Vocês pararam no passo N de 5" com "Continuar", até concluir.
+(1) "O que deu certo": concluídos nos últimos 7 dias por `done_at`, sem os deixados de lado e sem contar por pessoa, com
+anotação opcional; (2) "O que ficou pelo caminho?": abertos com prazo passado ou nos próximos 7 dias (sem Sonhos e sem a aba
+Revisão semanal), cada um com Esta semana (prazo no próximo domingo), Mais tarde (sem prazo; da aba Hoje vai para Pendências)
+ou Soltar (concluído com `dropped: true`, "deixado de lado"); a decisão grava na hora e pode ser trocada; (3) "Pendências da
+semana": escolher até 3 (sugestão; mais de 3 só mostra uma dica); (4) "Sonhos: guardamos algo?": sonhos com meta em andamento
+com "+ R$", que abre a folha "Guardar valor" da etapa 4; (5) "Foco da semana" e anotação. Pular tira o passo do resumo.
+"Concluir" grava um item na aba "Revisão semanal" no formato de sempre (concluído, `done_at`, prazo no dia, resumo nas notas),
+esconde o cartão de domingo daquele dia e tem Desfazer. **Modo conversa**: letras grandes e nenhum controle de editar (as
+escolhas aparecem escritas), para usar à mesa. Histórico: "Revisões anteriores" (mais recentes primeiro, abrem com o resumo),
+"Deixados de lado" com "Recuperar" (reabre sem `done_at`) e, se houver, os itens abertos da aba Revisão semanal.
+
+**Conversa de domingo:** as três perguntas na tela; guarda só os combinados (`{id, text, date}`, mais recentes primeiro), com
+"Tirar" e Desfazer. Nada de presença, nota ou avaliação de ninguém.
+
+**Pessoas:** `familia365-people-v1` continua uma lista de nomes (formato de sempre). A cor de cada pessoa fica em
+`familia365-familia-v1` (`cores`: nome em minúsculas → `azul`, `terracota`, `verde`, `lavanda`, `ameixa` ou `caramelo`,
+os tokens `--p-*` seguros para daltonismo, claro e escuro); quem não tem cor recebe a menos usada. Adicionar, renomear
+(os sonhos da pessoa acompanham o nome novo), trocar a cor e remover (os sonhos ficam), sempre com Desfazer; o nome aparece
+sempre escrito ao lado da cor. Nos sonhos, a pessoa cadastrada aparece com a bolinha da cor (decorativa) e o nome; itens da
+lista não têm pessoa (só Para mim/Casal/Família), então continuam com o ícone. Estado vazio: "Quem faz parte da família?".
+
+**Dados:** chave nova `familia365-familia-v1` (`cores`, `combinados`, `rascunho`) e campo opcional `dropped` nos itens
+(só em concluídos). O backup v2 leva `familia` (cores e combinados; o rascunho fica no aparelho); `parseBackup` aceita e
+backups antigos (v1 e v2 sem `familia`) continuam abrindo sem mexer na parte Família. Juntar: entram os combinados que faltam
+(por id) e as cores de quem ainda não tem; Substituir: a parte Família fica igual à do arquivo (o rascunho do aparelho fica).
+Lógica pura em `js/familia.js` (e `js/backup.js`), com testes em `tests/familia.test.mjs` e `tests/backup.test.mjs`;
+interface em `js/familia-ui.js` e `familia.css`. Cache do service worker: `familia365-static-v11`.

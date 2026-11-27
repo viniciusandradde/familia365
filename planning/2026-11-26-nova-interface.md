@@ -31,7 +31,7 @@ fictícios) fora do repositório, em `~/.local/share/familia365-design/design/`;
    reconhecimento local de "amanhã" e dias da semana.
 4. ✅ **Sonhos num lugar só.** (feita em 26/11/2026; ver `docs/local-first.md`) Itens da aba "Sonhos" aparecem no painel; cartão com foto, `<progress>`, "≈ R$/mês até
    mm/aaaa", "+ Guardar valor", "Pausar"/"Mudar prazo"; filtros Todos/Meu/Casal/Família; fotos no IndexedDB.
-5. **Família.** Revisão da semana guiada (5 passos, todos puláveis, "Modo conversa"), Conversa de domingo (3 perguntas,
+5. ✅ **Família.** (feita em 26/11/2026; ver `docs/local-first.md`) Revisão da semana guiada (5 passos, todos puláveis, "Modo conversa"), Conversa de domingo (3 perguntas,
    guarda só os combinados), pessoas com cor (paleta segura para daltonismo, sempre com o nome).
 6. **Acabamento.** Planos agrupados por horizonte com filtros, estados vazios, primeiro uso, tema escuro, revisão de
    acessibilidade (foco, leitores de tela, contraste).
