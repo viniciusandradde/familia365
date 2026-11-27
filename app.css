@@ -1,4 +1,4 @@
-/* Família365 · casca do app (etapa 2): telas, itens, sonhos, folhas e aviso. Usa só os tokens de tokens.css. */
+/* Família365 · casca do app (etapas 2 e 3): telas, Hoje, itens, sonhos, folhas e aviso. Usa só os tokens de tokens.css. */
 [hidden] { display: none !important; }
 h1[tabindex="-1"]:focus, main:focus { outline: none; } /* foco levado por script ao trocar de tela */
 .pular { position: absolute; z-index: 40; left: var(--s2); top: -100px; padding: var(--s3) var(--s4); border-radius: var(--r-md);
@@ -19,6 +19,23 @@ h1[tabindex="-1"]:focus, main:focus { outline: none; } /* foco levado por script
 .vazio-curto { padding: var(--s3) var(--s4); border: 1px dashed var(--border); border-radius: var(--r-lg); color: var(--ink-2); font-size: var(--fs-small); }
 .vazio h2 { font-size: var(--fs-body); font-weight: 700; }
 .secao:first-child { margin-top: 0; }
+
+/* Hoje (etapa 3): captura, seções, "de quem é", quer trazer, concluídos e estado vazio */
+#form-captura { margin-top: var(--s4); }
+#lista-hoje { margin-top: var(--s5); }
+.quem .i { width: 16px; height: 16px; color: var(--primary); stroke-width: 2; }
+.secao-titulo .i { color: var(--primary); }
+.recolhido--lista > .lista { margin-top: var(--s2); }
+.trazer-lista { grid-column: 1 / -1; display: grid; gap: var(--s1); margin: 0; padding: 0; list-style: none; }
+.trazer-lista li { display: flex; align-items: center; gap: var(--s2); padding-top: var(--s2); border-top: 1px solid var(--line); }
+.trazer-texto { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.trazer-titulo { display: block; font-weight: 500; line-height: 1.35; }
+.trazer-meta, .trazer-mais { display: block; color: var(--ink-2); font-size: var(--fs-small); }
+.trazer-mais { grid-column: 1 / -1; }
+.vazio > .i { width: 32px; height: 32px; color: var(--primary); }
+.vazio h2 + p { margin-top: var(--s1); }
+.sugestoes { justify-content: center; margin-top: var(--s4); }
+.sugestoes .chip .i { display: inline-block; margin: 0; color: var(--primary); }
 
 /* Sonhos */
 .sonhos-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
@@ -50,6 +67,14 @@ html:has(.folha[open]) { overflow: hidden; }
 .folha .folha-acoes { display: grid; gap: var(--s2); }
 .folha .recolhido > summary { margin-top: var(--s2); }
 .folha .dica { color: var(--attention); font-weight: 600; }
+.data-dica { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--s2); min-height: var(--target); margin-top: var(--s1); }
+.data-texto { display: flex; align-items: center; gap: var(--s2); flex: 1 1 14rem; color: var(--ink-2); font-size: var(--fs-small); }
+.data-texto--ok { color: var(--primary); font-weight: 600; }
+.data-dica .btn { min-height: var(--target); padding-inline: var(--s2); }
+.campos-lado { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--s3); }
+.campos-lado .campo { min-width: 0; }
+.check-campo { display: flex; align-items: center; gap: var(--s3); min-height: var(--target); margin-top: var(--s3); cursor: pointer; }
+.folha-acoes .btn-contorno .i { width: 20px; height: 20px; }
 
 @media (prefers-reduced-motion: no-preference) {
   .folha[open] { animation: folha-subir .22s ease-out; }
