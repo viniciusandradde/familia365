@@ -1,5 +1,66 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#557663"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="dados.css"><title>Família365</title></head><body><main><header><strong>♡ Família365</strong><small>Presente, propósito e legado</small></header><section class="hero"><small id="date"></small><h1>Construindo nossa história.</h1><p>Uma pequena ação de cada vez.</p></section><a href="#vision">Abrir Painel de Visão do Futuro</a> · <a href="#dados">Dados e backup</a><nav id="nav" aria-label="Seções"></nav><section><h2 id="heading">Hoje</h2><p id="summary"></p><form id="form"><label>O que deseja realizar?<input id="title" required maxlength="200"></label><label>Dimensão<select id="area"><option>Pessoal</option><option>Casal</option><option>Filhos</option><option>Família</option><option>Espiritualidade</option><option>Finanças</option><option>Saúde</option><option>Lazer</option><option>Conhecimento</option></select></label><label>Horizonte<select id="horizon"><option>Hoje</option><option>7 dias</option><option>30 dias</option><option>90 dias</option><option>1 ano</option><option>5 anos</option><option>10 anos ou mais</option></select></label><label>Prazo (opcional)<input type="date" id="due"></label><label>Observações<textarea id="notes" maxlength="4000"></textarea></label><button id="save">Adicionar</button><button type="button" id="cancel" hidden>Cancelar edição</button></form><div id="list"></div></section><section id="vision"><h2>Painel de Visão do Futuro</h2><label>De quem é a visão?<select id="vision-person"><option>Minha visão</option><option>Casal</option><option>Família</option></select></label><form id="vision-people"><label>Adicionar pessoa (fica só neste aparelho)<input id="vision-new-person" maxlength="40" autocomplete="off"></label><button>Adicionar pessoa</button></form><form id="vision-form"><label>Sonho ou objetivo<input id="vision-title" required maxlength="200"></label><label>Dimensão<input id="vision-area" required placeholder="Ex.: Saúde, fé, família"></label><label>Horizonte<select id="vision-horizon"><option>1 ano</option><option>5 anos</option><option>10 anos</option><option>20 anos</option><option>30 anos</option><option>Sem prazo</option></select></label><label>Descrição<textarea id="vision-notes"></textarea></label><label>Valor-alvo da meta (R$, opcional)<input id="vision-target" type="number" min="0" step=".01" inputmode="decimal"></label><label>Já reservado (R$)<input id="vision-reserved" type="number" min="0" step=".01" inputmode="decimal"></label><label>Prazo da meta<input id="vision-due" type="date"></label><label>Foto da galeria<input id="vision-photo" type="file" accept="image/*"></label><button id="vision-save">Salvar sonho</button><button type="button" id="vision-cancel">Cancelar edição</button></form><div id="vision-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px"></div><p class="nota-dados">O backup e a restauração do painel ficam em <a href="#dados">Dados e backup</a>, num arquivo só.</p><p id="vision-status" role="status"></p></section><section id="dados" aria-labelledby="dados-titulo"><svg class="sprite" aria-hidden="true" focusable="false"><defs><symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.4-3.1 8-7.5 9.5-4.4-1.5-7.5-5.1-7.5-9.5V6z"/><path d="m8.8 12 2.2 2.2 4.3-4.4"/></symbol><symbol id="i-baixar" viewBox="0 0 24 24"><path d="M12 3.5v11M7 10l5 5 5-5"/><path d="M4 16.5v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol><symbol id="i-arquivo" viewBox="0 0 24 24"><path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5M8.5 13h7M8.5 16.5h5"/></symbol><symbol id="i-desfazer" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol><symbol id="i-baixo" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol></defs></svg>
-<h2 id="dados-titulo">Dados e backup</h2>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f8f5ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121815" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="dados.css">
+<title>Família365</title>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20.5S3.5 15.3 3.5 9.4A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 8.5 2.4c0 5.9-8.5 11.1-8.5 11.1z"/></symbol>
+<symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol>
+<symbol id="i-planos" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 14h3M13.5 14h3M7.5 17h3"/></symbol>
+<symbol id="i-sonhos" viewBox="0 0 24 24"><path d="M2.5 19.5 9 10l4 5.5 2.5-3 6 7z"/><circle cx="17" cy="6.5" r="2.5"/></symbol>
+<symbol id="i-familia" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z"/><path d="M12 17.4s-3.3-1.9-3.3-4.1a1.7 1.7 0 0 1 3.3-.7 1.7 1.7 0 0 1 3.3.7c0 2.2-3.3 4.1-3.3 4.1z"/></symbol>
+<symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.4-3.1 8-7.5 9.5-4.4-1.5-7.5-5.1-7.5-9.5V6z"/><path d="m8.8 12 2.2 2.2 4.3-4.4"/></symbol>
+<symbol id="i-baixar" viewBox="0 0 24 24"><path d="M12 3.5v11M7 10l5 5 5-5"/><path d="M4 16.5v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+<symbol id="i-arquivo" viewBox="0 0 24 24"><path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5M8.5 13h7M8.5 16.5h5"/></symbol>
+<symbol id="i-desfazer" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+<symbol id="i-baixo" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+</defs></svg>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<div class="app">
+<header class="topo">
+<p class="topo-data"><span class="marca" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-coracao"/></svg></span><time id="topo-data"></time></p>
+<a class="btn-dados" id="btn-dados" href="#/dados" aria-label="Dados e backup"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-escudo"/></svg><span aria-hidden="true">Dados</span><span class="ponto" id="ponto-backup" aria-hidden="true" hidden></span></a>
+</header>
+<main id="conteudo" tabindex="-1">
+<p class="alerta" id="alerta" role="alert" hidden></p>
+<section class="tela" id="tela-hoje" aria-labelledby="h-hoje" hidden>
+<div class="titulo-tela"><h1 id="h-hoje" tabindex="-1">Hoje</h1><p id="resumo-hoje"></p></div>
+<div id="lista-hoje"></div>
+</section>
+<section class="tela" id="tela-planos" aria-labelledby="h-planos" hidden>
+<div class="titulo-tela"><h1 id="h-planos" tabindex="-1">Planos</h1><p>Plano de vida, família e pendências.</p></div>
+<div id="lista-planos"></div>
+</section>
+<section class="tela" id="tela-sonhos" aria-labelledby="h-sonhos" hidden>
+<div class="titulo-tela"><h1 id="h-sonhos" tabindex="-1">Sonhos</h1><p>Painel de Visão do Futuro.</p></div>
+<label class="rotulo" for="vision-person">De quem é a visão?</label>
+<select class="campo" id="vision-person"></select>
+<div class="sonhos-grade" id="vision-list"></div>
+<section class="secao" aria-labelledby="t-sonhos-lista"><h2 class="secao-titulo" id="t-sonhos-lista">Anotados na lista</h2><div id="lista-sonhos"></div></section>
+<details class="recolhido recolhido--cartao secao"><summary><span>Pessoas <span class="resumo-dica">· ficam só neste aparelho</span></span><svg class="i" aria-hidden="true" focusable="false"><use href="#i-baixo"/></svg></summary>
+<form class="dentro" id="vision-people"><label class="rotulo" for="vision-new-person">Nome de quem também sonha</label><input class="campo" id="vision-new-person" maxlength="40" autocomplete="off" required><button class="btn btn-contorno btn-bloco" type="submit">Adicionar pessoa</button></form></details>
+</section>
+<section class="tela" id="tela-familia" aria-labelledby="h-familia" hidden>
+<div class="titulo-tela"><h1 id="h-familia" tabindex="-1">Família</h1><p>Revisão semanal: o que combinamos juntos.</p></div>
+<div id="lista-familia"></div>
+</section>
+<section class="tela" id="dados" aria-labelledby="dados-titulo" hidden>
+<div class="titulo-tela"><h1 id="dados-titulo" tabindex="-1">Dados e backup</h1></div>
 <p class="intro">Tudo fica neste aparelho, sem conta e sem nuvem. O backup é a cópia que protege vocês se o celular quebrar ou for trocado.</p>
 <section class="cartao" aria-labelledby="t-backup"><div class="backup-linha"><span class="icone-redondo" aria-hidden="true"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-escudo"/></svg></span><div><h3 class="sobretitulo" id="t-backup">Último backup</h3><p class="backup-quando" id="backup-quando">Nenhum backup ainda</p></div></div>
 <p class="lembrete" id="backup-lembrete" hidden>Passou de uma semana. Que tal agora?</p>
@@ -25,4 +86,53 @@
 <p class="pequeno">Vão os sonhos do painel com valor-alvo e os itens de Sonhos com valor no título (ex.: R$ 6.000).</p>
 <label class="rotulo" for="paste">Código de importação (recebido no ChatGPT)</label><textarea id="paste" class="campo" placeholder="Cole aqui o código de importação"></textarea>
 <button class="btn btn-contorno btn-bloco" id="pasteImport" type="button">Importar código sem substituir dados</button></div></details>
-<p id="status" class="msg" role="status"></p></section></main><script src="app.js" defer></script><script src="vision.js" defer></script><script type="module" src="js/dados.js"></script></body></html>
+<p id="status" class="msg" role="status"></p></section>
+</main>
+</div>
+<button class="fab" id="fab" type="button" aria-label="Anotar" title="Anotar"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-mais"/></svg></button>
+<div class="aviso-regiao" id="aviso" role="status" aria-live="polite"></div>
+<nav class="barra" aria-label="Principal"><ul>
+<li><a href="#/hoje" data-rota="hoje"><span class="barra-icone"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-sol"/></svg></span>Hoje</a></li>
+<li><a href="#/planos" data-rota="planos"><span class="barra-icone"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-planos"/></svg></span>Planos</a></li>
+<li><a href="#/sonhos" data-rota="sonhos"><span class="barra-icone"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-sonhos"/></svg></span>Sonhos</a></li>
+<li><a href="#/familia" data-rota="familia"><span class="barra-icone"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-familia"/></svg></span>Família</a></li>
+</ul></nav>
+<dialog class="folha" id="folha-item" aria-labelledby="folha-item-titulo">
+<div class="folha-alca" aria-hidden="true"></div>
+<div class="folha-topo"><h2 id="folha-item-titulo">Anotar</h2><button class="btn btn-texto btn-texto--neutro" type="button" data-fechar><svg class="i i--20" aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg>Fechar</button></div>
+<form id="form-item" novalidate>
+<label class="grupo"><span class="rotulo">O que deseja realizar?</span><input class="campo" id="item-title" maxlength="200" autocomplete="off" required></label>
+<p class="dica" id="item-erro" hidden>Escreva o que deseja realizar.</p>
+<label class="grupo"><span class="rotulo">Onde fica</span><select class="campo" id="item-tab"><option>Hoje</option><option>Plano de vida</option><option>Família</option><option>Sonhos</option><option>Pendências</option><option>Revisão semanal</option></select></label>
+<details class="recolhido" id="item-mais"><summary><span>Mais detalhes <span class="resumo-dica">· dimensão, horizonte, prazo</span></span><svg class="i" aria-hidden="true" focusable="false"><use href="#i-baixo"/></svg></summary>
+<label class="grupo"><span class="rotulo">Dimensão</span><select class="campo" id="item-area"><option>Pessoal</option><option>Casal</option><option>Filhos</option><option>Família</option><option>Espiritualidade</option><option>Finanças</option><option>Saúde</option><option>Lazer</option><option>Conhecimento</option></select></label>
+<label class="grupo"><span class="rotulo">Horizonte</span><select class="campo" id="item-horizon"><option>Hoje</option><option>7 dias</option><option>30 dias</option><option>90 dias</option><option>1 ano</option><option>5 anos</option><option>10 anos ou mais</option></select></label>
+<label class="grupo"><span class="rotulo">Prazo (opcional)</span><input class="campo" type="date" id="item-due"></label>
+<label class="grupo"><span class="rotulo">Observações</span><textarea class="campo campo--texto" id="item-notes" maxlength="4000"></textarea></label>
+</details>
+<div class="folha-acoes"><button class="btn btn-principal btn-bloco" id="item-salvar" type="submit">Anotar</button><button class="btn btn-texto btn-texto--neutro btn-bloco" id="item-excluir" type="button" hidden>Excluir</button></div>
+</form>
+</dialog>
+<dialog class="folha" id="folha-sonho" aria-labelledby="folha-sonho-titulo">
+<div class="folha-alca" aria-hidden="true"></div>
+<div class="folha-topo"><h2 id="folha-sonho-titulo">Novo sonho</h2><button class="btn btn-texto btn-texto--neutro" type="button" data-fechar><svg class="i i--20" aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg>Fechar</button></div>
+<form id="vision-form" novalidate>
+<label class="grupo"><span class="rotulo">Sonho ou objetivo</span><input class="campo" id="vision-title" maxlength="200" autocomplete="off" required></label>
+<p class="dica" id="vision-erro" hidden>Escreva o sonho ou objetivo.</p>
+<label class="grupo"><span class="rotulo">De quem é</span><select class="campo" id="vision-owner"></select></label>
+<label class="grupo"><span class="rotulo">Dimensão</span><input class="campo" id="vision-area" maxlength="60" placeholder="Ex.: saúde, fé, família"></label>
+<label class="grupo"><span class="rotulo">Horizonte</span><select class="campo" id="vision-horizon"><option>1 ano</option><option>5 anos</option><option>10 anos</option><option>20 anos</option><option>30 anos</option><option>Sem prazo</option></select></label>
+<details class="recolhido" id="vision-mais"><summary><span>Mais detalhes <span class="resumo-dica">· valor, prazo, foto</span></span><svg class="i" aria-hidden="true" focusable="false"><use href="#i-baixo"/></svg></summary>
+<label class="grupo"><span class="rotulo">Descrição</span><textarea class="campo campo--texto" id="vision-notes" maxlength="4000"></textarea></label>
+<label class="grupo"><span class="rotulo">Valor-alvo da meta (R$, opcional)</span><input class="campo" id="vision-target" type="number" min="0" step=".01" inputmode="decimal"></label>
+<label class="grupo"><span class="rotulo">Já reservado (R$)</span><input class="campo" id="vision-reserved" type="number" min="0" step=".01" inputmode="decimal"></label>
+<label class="grupo"><span class="rotulo">Prazo da meta</span><input class="campo" id="vision-due" type="date"></label>
+<label class="grupo"><span class="rotulo">Foto da galeria</span><input class="campo campo--arquivo" id="vision-photo" type="file" accept="image/*"></label>
+</details>
+<div class="folha-acoes"><button class="btn btn-principal btn-bloco" id="vision-save" type="submit">Guardar sonho</button><button class="btn btn-texto btn-texto--neutro btn-bloco" id="vision-excluir" type="button" hidden>Excluir sonho</button></div>
+</form>
+</dialog>
+<script type="module" src="js/main.js"></script>
+<script type="module" src="js/dados.js"></script>
+</body>
+</html>

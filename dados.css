@@ -1,15 +1,7 @@
 /* Família365 · seção "Dados e backup" (etapa 1 da nova interface).
-   Tokens corrigidos do sistema "caderno de família" (contraste AA), escopados em #dados até a etapa 2 levá-los à página toda. */
-#dados {
-  --bg: #f8f5ee; --surface: #fffdf8; --surface-sunk: #f2eee4; --surface-tint: #e5ece0; --field: #ffffff;
-  --ink: #263e32; --ink-2: #44604f; --primary: #3d5a49; --primary-hover: #314c3d; --on-primary: #ffffff;
-  --border: #7d8a7c; --line: #e3ded1; --attention: #7a4a14; --attention-bg: #f6ead6; --focus: #263e32;
-  --shadow-1: 0 1px 2px rgba(38, 62, 50, .06), 0 1px 3px rgba(38, 62, 50, .07);
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --target: 48px;
-  background: none; border: 0; padding: 0; color: var(--ink); line-height: 1.5;
-}
+   Os tokens (claro e escuro) vêm de tokens.css, aplicados à página toda desde a etapa 2. */
+#dados { color: var(--ink); line-height: 1.5; }
 #dados h2, #dados h3, #dados p { margin: 0; }
-#dados > h2 { font: 700 1.75rem/1.15 Georgia, "Noto Serif", serif; letter-spacing: -.01em; padding: var(--s2) 0 var(--s3); color: var(--ink); }
 #dados :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 #dados [tabindex="-1"]:focus { outline: none; } /* foco levado por script (prévia, aviso): só para o leitor de tela */
 #dados .sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -94,4 +86,4 @@
 #dados .rotulo { display: block; margin-top: var(--s2); color: var(--ink-2); font-size: .875rem; font-weight: 600; }
 #dados .campo { width: 100%; min-height: 96px; padding: var(--s3); border: 1.5px solid var(--border); border-radius: var(--r-md); background: var(--field); color: var(--ink); font-size: 1rem; }
 #dados .campo::placeholder { color: var(--ink-2); opacity: 1; }
-.nota-dados { margin-top: 12px; color: #44604f; font-size: .875rem; }
+.nota-dados { margin-top: 12px; color: var(--ink-2); font-size: .875rem; }

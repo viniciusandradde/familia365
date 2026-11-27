@@ -1,6 +1,6 @@
 // Seção "Dados e backup": backup completo (v2), restauração com prévia (Juntar ou Substituir tudo, com Desfazer)
-// e exportação de metas. Lê e grava as mesmas chaves que app.js e vision.js; depois de gravar, recarrega a página
-// (os dois scripts guardam o estado em closures).
+// e exportação de metas. Lê e grava as mesmas chaves que main.js e sonhos.js; depois de restaurar, recarrega a página
+// (os módulos guardam o estado em memória). A tela é a rota #/dados.
 import { buildBackup, parseBackup, summarize, merge, replace, describeLastBackup, validItem, BackupError, MAX_BYTES } from './backup.js';
 import { goalsFile } from './goals.js';
 
@@ -45,7 +45,7 @@ function download(blob, name) {
 }
 function flashAndReload(text) {
   try { sessionStorage.setItem(FLASH, text); } catch { /* sem aviso depois de recarregar */ }
-  location.hash = '#dados';
+  location.hash = '#/dados';
   location.reload();
 }
 
@@ -86,6 +86,7 @@ $('backup-fazer').onclick = async () => {
     }
     if (!shared) download(blob, name);
     try { store().setItem(K.meta, JSON.stringify({ ...(readJSON(K.meta) || {}), last_backup_at: now.toISOString() })); } catch { /* data não guardada */ }
+    document.dispatchEvent(new CustomEvent('familia365:backup')); // o cabeçalho tira o ponto ocre
     renderLast();
     say('backup-status', shared ? 'Backup enviado. Guarde o arquivo fora deste aparelho.' : 'Backup salvo como ' + name + '. Guarde uma cópia fora deste aparelho.');
   } finally { b.disabled = false; }

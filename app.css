@@ -1,0 +1,67 @@
+/* Família365 · casca do app (etapa 2): telas, itens, sonhos, folhas e aviso. Usa só os tokens de tokens.css. */
+[hidden] { display: none !important; }
+h1[tabindex="-1"]:focus, main:focus { outline: none; } /* foco levado por script ao trocar de tela */
+.pular { position: absolute; z-index: 40; left: var(--s2); top: -100px; padding: var(--s3) var(--s4); border-radius: var(--r-md);
+  background: var(--primary); color: var(--on-primary); font-weight: 600; text-decoration: none; }
+.pular:focus { top: var(--s2); }
+
+.btn-dados[aria-current="page"] { background: var(--surface-tint); }
+.alerta { margin: var(--s2) 0 var(--s4); padding: var(--s3) var(--s4); border-radius: var(--r-md);
+  background: var(--attention-bg); color: var(--ink); font-size: 0.9375rem; }
+
+/* Itens: a caixa conclui, o corpo abre a folha de edição */
+.item-corpo { display: block; width: 100%; min-height: var(--target); padding: var(--s1) var(--s2); border: 0; border-radius: var(--r-sm);
+  background: transparent; color: inherit; text-align: left; overflow-wrap: anywhere; }
+.item-corpo:hover { background: var(--surface-sunk); }
+.item-titulo { display: block; }
+.item-nota { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); white-space: pre-line; }
+.vazio-curto { padding: var(--s3) var(--s4); border: 1px dashed var(--border); border-radius: var(--r-lg); color: var(--ink-2); font-size: var(--fs-small); }
+.vazio h2 { font-size: var(--fs-body); font-weight: 700; }
+.secao:first-child { margin-top: 0; }
+
+/* Sonhos */
+.sonhos-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
+.sonhos-grade > .vazio { grid-column: 1 / -1; margin-top: 0; }
+.sonho { display: flex; flex-direction: column; overflow: hidden; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-1); overflow-wrap: anywhere; }
+.sonho-foto { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-sunk); }
+.sonho-corpo { display: flex; flex: 1; flex-direction: column; gap: var(--s1); padding: var(--s3) var(--s3) var(--s1); }
+.sonho-titulo { font: 700 var(--fs-card)/1.25 var(--font-serif); }
+.sonho-meta, .sonho-nota { color: var(--ink-2); font-size: var(--fs-small); line-height: 1.4; }
+.sonho-nota { white-space: pre-line; }
+.sonho-editar { align-self: flex-start; margin: auto 0 0 calc(-1 * var(--s3)); }
+.recolhido--cartao > summary { background: var(--surface); border: 1px solid var(--line); }
+.recolhido--cartao[open] > summary { border-radius: var(--r-md) var(--r-md) 0 0; }
+.recolhido .dentro { display: grid; gap: var(--s3); padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-top: 0;
+  border-radius: 0 0 var(--r-md) var(--r-md); }
+.recolhido .dentro .rotulo { margin-bottom: calc(-1 * var(--s2)); }
+
+/* Campos */
+.campo--texto { min-height: 104px; padding: var(--s3) var(--s4); line-height: 1.45; resize: vertical; }
+.campo--arquivo { padding: var(--s3) var(--s4); }
+select.campo { padding-right: var(--s3); }
+
+/* Folhas (<dialog>) */
+.folha { max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; }
+.folha::backdrop { background: var(--scrim); }
+html:has(.folha[open]) { overflow: hidden; }
+.folha form { padding-bottom: var(--s1); }
+.folha .folha-acoes { display: grid; gap: var(--s2); }
+.folha .recolhido > summary { margin-top: var(--s2); }
+.folha .dica { color: var(--attention); font-weight: 600; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .folha[open] { animation: folha-subir .22s ease-out; }
+  .folha[open]::backdrop { animation: veu-aparecer .22s ease-out; }
+  .aviso { animation: aviso-aparecer .18s ease-out; }
+  .fab { transition: bottom .18s ease; }
+}
+@keyframes folha-subir { from { transform: translateY(32px); opacity: .5; } }
+@keyframes veu-aparecer { from { opacity: 0; } }
+@keyframes aviso-aparecer { from { transform: translateY(8px); opacity: 0; } }
+
+/* Computador: a coluna continua estreita (leitura), com um pouco mais de respiro no topo */
+@media (min-width: 900px) {
+  .titulo-tela { padding-top: var(--s5); }
+}
