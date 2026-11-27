@@ -25,3 +25,21 @@ seção até a próxima restauração; sem espaço para essa cópia, "Substituir
 link `#import=`, metas do FiscalFlow) ficam em "Outras importações"; "Exportar metas" usa `target_cents`/`reserved_cents` dos
 sonhos do painel e ainda aceita os itens de Sonhos com valor no título. Lógica pura em `js/backup.js` e `js/goals.js`
 (`node --test tests/*.test.mjs`); interface em `js/dados.js` e `dados.css`. Cache do service worker: `familia365-static-v7`.
+
+## Estrutura nova da interface (2026-11-26, etapa 2 da nova interface)
+O app virou uma casca com cinco telas em rotas por hash: `#/hoje` (padrão), `#/planos`, `#/sonhos`, `#/familia` e `#/dados`.
+O link `#import=` continua funcionando (abre em Hoje e pede confirmação antes de juntar), e as âncoras antigas `#dados` e
+`#vision` levam a Dados e Sonhos. Barra inferior fixa com Hoje, Planos, Sonhos e Família (`aria-current="page"` na ativa);
+cabeçalho com a data e "Dados" (escudo), com um ponto ocre quando o último backup tem mais de 7 dias ou não existe. Ao trocar
+de tela, o foco vai para o título. Conteúdo provisório: Hoje = a lista da antiga aba Hoje; Planos = Plano de vida, Família e
+Pendências, agrupados por aba; Sonhos = o Painel de Visão do Futuro e, abaixo, os itens da aba Sonhos; Família = Revisão
+semanal; Dados = a seção da etapa 1. Criar e editar itens e sonhos acontece numa folha (`<dialog>`: Fechar, Esc e "voltar"
+fecham; Excluir só dentro da edição), aberta pelo botão "+" (escondido em Dados). Concluir, excluir e salvar mostram um aviso
+com "Desfazer" por cerca de 5 s; a exclusão não pede mais `confirm()`.
+
+Arquivos: `index.html` (sem estilo ou script inline; CSP `style-src 'self'` também no nginx), `tokens.css` (tokens claro e
+escuro e componentes do desenho), `app.css` (casca), `dados.css` (seção Dados). Módulos: `js/main.js` (rotas, cabeçalho,
+listas, folha de item, importações), `js/sonhos.js` (painel e pessoas), `js/ui.js` (aviso e folhas), `js/dados.js` (backup);
+lógica pura testada em `js/router.js`, `js/telas.js`, `js/itens.js`, `js/backup.js` e `js/goals.js`. `app.js`, `vision.js` e
+`style.css` saíram. Chaves e formato gravado não mudaram (`familia365-v1`, `familia365-vision-v1`, `familia365-people-v1`,
+`familia365-meta-v1`, `familia365-undo-v1`). Cache do service worker: `familia365-static-v8`.

@@ -10,12 +10,12 @@ const ALL = ['items', 'dreams', 'people'];
 export class BackupError extends Error {}
 const fail = msg => { throw new BackupError(msg); };
 
-// Mesmas regras de valid() do app.js.
+// Mesmas regras de valid() do antigo app.js (hoje usadas por js/main.js e js/itens.js).
 export function validItem(x) {
   return !!x && typeof x.id === 'string' && typeof x.title === 'string' && x.title.length <= 200 && TABS.includes(x.tab) &&
     typeof x.done === 'boolean' && ['area', 'horizon', 'due', 'notes'].every(k => typeof x[k] === 'string');
 }
-// Mesmas regras da restauração do painel em vision.js.
+// Mesmas regras da restauração do painel do antigo vision.js.
 export function validDream(x) {
   return !!x && ['id', 'person', 'title', 'area', 'horizon', 'notes', 'photo'].every(k => typeof x[k] === 'string') &&
     (!x.photo || PHOTO.test(x.photo)) &&

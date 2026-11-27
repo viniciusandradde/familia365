@@ -18,12 +18,12 @@ fictícios) fora do repositório, em `~/.local/share/familia365-design/design/`;
   com dados fictícios (celular 390 px e computador) a cada etapa visual.
 
 ## Etapas (uma de cada vez, cada uma com commit próprio)
-1. **Backup seguro.** Um arquivo só (`version: 2`) com lista, sonhos (com fotos), pessoas e data de exportação; lê os
+1. ✅ **Backup seguro.** (feita em 26/11/2026) Um arquivo só (`version: 2`) com lista, sonhos (com fotos), pessoas e data de exportação; lê os
    formatos antigos. Restaurar: prévia arquivo × aparelho, "Juntar" (padrão, por id, nunca apaga) ou "Substituir tudo"
    (cópia automática do estado atual antes, com Desfazer). "Último backup: há N dias"; `navigator.storage.persist()`.
    Exportação de metas para o FiscalFlow passa a usar `target_cents`/`reserved_cents` dos sonhos do painel (e continua
    aceitando os "Sonhos" da lista com valor no título).
-2. **Estrutura.** Rotas por hash (`#/hoje`, `#/planos`, `#/sonhos`, `#/familia`, `#/dados`; manter `#import=`), barra
+2. ✅ **Estrutura.** (feita em 26/11/2026; conteúdo das telas ainda provisório, ver `docs/local-first.md`) Rotas por hash (`#/hoje`, `#/planos`, `#/sonhos`, `#/familia`, `#/dados`; manter `#import=`), barra
    inferior com 4 destinos e `aria-current`, cabeçalho compacto com data e "Dados" (ponto ocre se o backup tiver mais de
    7 dias), folhas com `<dialog>`, aviso global com Desfazer (`role="status"`), tokens de cor corrigidos (claro e escuro).
 3. **Hoje.** Captura em uma linha (Enter), caixa de concluir de 48 px, "À noite", "Concluídos hoje" recolhido, `done_at`,
