@@ -3,6 +3,7 @@
 // (os módulos guardam o estado em memória). A tela é a rota #/dados.
 import { buildBackup, parseBackup, summarize, merge, replace, describeLastBackup, validItem, BackupError, MAX_BYTES } from './backup.js';
 import { goalsFile } from './goals.js';
+import { abrirFotos, fotosParaBackup, moverFotos } from './fotos.js';
 
 const K = { items: 'familia365-v1', dreams: 'familia365-vision-v1', people: 'familia365-people-v1', meta: 'familia365-meta-v1', undo: 'familia365-undo-v1' };
 const FLASH = 'familia365-aviso';
@@ -76,7 +77,9 @@ $('backup-fazer').onclick = async () => {
   b.disabled = true;
   try {
     const now = new Date(), name = 'familia365-backup-' + now.toLocaleDateString('sv-SE') + '.json';
-    const blob = new Blob([JSON.stringify(buildBackup({ ...device, exportedAt: now.toISOString() }))], { type: 'application/json' });
+    // As fotos guardadas no IndexedDB entram no arquivo em base64, como sempre.
+    const { dreams, faltando } = await fotosParaBackup(device.dreams, await abrirFotos().catch(() => null));
+    const blob = new Blob([JSON.stringify(buildBackup({ ...device, dreams, exportedAt: now.toISOString() }))], { type: 'application/json' });
     let shared = false;
     try {
       const file = new File([blob], name, { type: 'application/json' });
@@ -88,7 +91,8 @@ $('backup-fazer').onclick = async () => {
     try { store().setItem(K.meta, JSON.stringify({ ...(readJSON(K.meta) || {}), last_backup_at: now.toISOString() })); } catch { /* data não guardada */ }
     document.dispatchEvent(new CustomEvent('familia365:backup')); // o cabeçalho tira o ponto ocre
     renderLast();
-    say('backup-status', shared ? 'Backup enviado. Guarde o arquivo fora deste aparelho.' : 'Backup salvo como ' + name + '. Guarde uma cópia fora deste aparelho.');
+    say('backup-status', (shared ? 'Backup enviado. Guarde o arquivo fora deste aparelho.' : 'Backup salvo como ' + name + '. Guarde uma cópia fora deste aparelho.') +
+      (faltando ? ' ' + plural(faltando, 'foto não pôde ser lida e ficou de fora.', 'fotos não puderam ser lidas e ficaram de fora.') : ''));
   } finally { b.disabled = false; }
 };
 
@@ -144,7 +148,7 @@ for (const input of document.querySelectorAll('input[data-restore]')) input.onch
 for (const r of document.querySelectorAll('input[name="restore-modo"]')) r.onchange = syncButton;
 $('restore-cancelar').onclick = () => { hidePreview(); say('restore-status', 'Restauração cancelada. Nada foi alterado.'); $('restore-escolher').focus(); };
 
-$('restore-aplicar').onclick = () => {
+$('restore-aplicar').onclick = async () => {
   if (!pending) return;
   const mode = modo();
   let device;
@@ -159,7 +163,9 @@ $('restore-aplicar').onclick = () => {
     if (mode === 'substituir') { say('restore-status', 'Não há espaço para guardar a cópia de segurança antes de substituir. Nada foi alterado. Use "Juntar" ou faça antes um backup completo.'); return; }
     try { store().removeItem(K.undo); } catch { /* segue: juntar não apaga nada */ }
   }
-  try { writeState({ items: result.items, dreams: result.dreams, people: result.people }); }
+  // Fotos do arquivo vão para o IndexedDB e o sonho fica só com a referência (se não der, ficam em base64, como antes).
+  const { dreams } = await moverFotos(result.dreams, await abrirFotos().catch(() => null));
+  try { writeState({ items: result.items, dreams, people: result.people }); }
   catch { try { store().removeItem(K.undo); } catch { /* segue */ } say('restore-status', 'Não foi possível gravar (espaço insuficiente neste aparelho). Nada foi alterado.'); return; }
   const a = result.added;
   flashAndReload(mode === 'juntar'

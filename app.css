@@ -38,16 +38,31 @@ h1[tabindex="-1"]:focus, main:focus { outline: none; } /* foco levado por script
 .sugestoes .chip .i { display: inline-block; margin: 0; color: var(--primary); }
 
 /* Sonhos */
-.sonhos-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
-.sonhos-grade > .vazio { grid-column: 1 / -1; margin-top: 0; }
-.sonho { display: flex; flex-direction: column; overflow: hidden; background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--r-lg); box-shadow: var(--shadow-1); overflow-wrap: anywhere; }
-.sonho-foto { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-sunk); }
-.sonho-corpo { display: flex; flex: 1; flex-direction: column; gap: var(--s1); padding: var(--s3) var(--s3) var(--s1); }
-.sonho-titulo { font: 700 var(--fs-card)/1.25 var(--font-serif); }
-.sonho-meta, .sonho-nota { color: var(--ink-2); font-size: var(--fs-small); line-height: 1.4; }
-.sonho-nota { white-space: pre-line; }
-.sonho-editar { align-self: flex-start; margin: auto 0 0 calc(-1 * var(--s3)); }
+/* Sonhos (etapa 4): filtros, "Já guardado", cartões com foto ou ilustração, sem esticar até a altura do vizinho */
+.filtros-sonhos { margin-top: var(--s2); }
+.sonhos { align-items: start; margin-top: var(--s3); }
+.sonhos > .vazio { margin-top: 0; }
+@media (min-width: 720px) { .sonhos { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
+.sonho-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sonho-foto .ilustra { display: block; width: 100%; height: 100%; }
+.il-ceu { fill: var(--surface-tint); }
+.il-sol { fill: var(--p-caramelo); opacity: .55; }
+.il-morro { fill: var(--track); }
+.il-morro2 { fill: var(--primary); opacity: .28; }
+.sonho h2 { overflow-wrap: anywhere; }
+.selo-foto .i { width: 18px; height: 18px; }
+.sonho-meta .quem { display: inline-flex; align-items: center; gap: 4px; }
+.sonho-meta .quem .i { width: 16px; height: 16px; }
+.ritmo { margin-top: var(--s1); }
+.ritmo--chegou { display: flex; align-items: center; gap: var(--s1); color: var(--ink); font-weight: 600; }
+.ritmo--chegou .i { color: var(--primary); }
+.sonho--pausado .barra-progresso { opacity: .55; }
+.sonho-acoes .btn-icone { margin-left: auto; }
+.sonho--compacto .sonho-acoes { margin-right: calc(-1 * var(--s2)); }
+.foto-previa { display: block; width: 100%; max-height: 220px; margin-top: var(--s3); border-radius: var(--r-md); object-fit: cover; }
+.opcoes-lista { display: grid; gap: var(--s2); }
+.dica-folha { margin-bottom: var(--s3); color: var(--ink-2); font-size: var(--fs-small); }
+.proximos time { white-space: nowrap; }
 .recolhido--cartao > summary { background: var(--surface); border: 1px solid var(--line); }
 .recolhido--cartao[open] > summary { border-radius: var(--r-md) var(--r-md) 0 0; }
 .recolhido .dentro { display: grid; gap: var(--s3); padding: var(--s4); background: var(--surface); border: 1px solid var(--line); border-top: 0;

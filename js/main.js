@@ -2,16 +2,17 @@
 // linha, seções, concluir com done_at), listas das outras telas, folha Anotar/Editar e importações. Grava as mesmas chaves
 // de antes (familia365-v1); os campos novos dos itens (done_at, scope, time, night) são opcionais.
 import { parseRoute, hashFor } from './router.js';
-import { itemsForScreen, groupPlanos, fabAction, needsBackupReminder, headerDate, dueLabel, openFirst, isoDay } from './telas.js';
+import { itemsForScreen, groupPlanos, fabAction, needsBackupReminder, headerDate, dueLabel, openFirst, isoDay, proximosDias, diaCurto } from './telas.js';
 import { toggleDone, removeById, upsertItem, trazerParaHoje, ficaParaAmanha } from './itens.js';
 import { secoesHoje, scopeOf, SCOPE_LABEL, SCOPE_ICON, timeLabel, mostrarRevisao, whenOf, tabForWhen, horizonForWhen, SUGESTOES } from './hoje.js';
 import { reconhecerData } from './datas.js';
 import { validItem } from './backup.js';
-import { mergeGoals } from './goals.js';
+import { mergeGoalsDreams } from './goals.js';
+import { migrarSonhosDaLista } from './painel.js';
 import { $, el, icon, aviso, abrirFolha, fecharFolha, prepararFolhas } from './ui.js';
 import { iniciarSonhos } from './sonhos.js';
 
-const KEY = 'familia365-v1', META = 'familia365-meta-v1';
+const KEY = 'familia365-v1', META = 'familia365-meta-v1', VKEY = 'familia365-vision-v1';
 let items = [], bloqueado = false, rotaAtual = null, editando = null;
 
 // ---------- Dados da lista ----------
@@ -35,8 +36,23 @@ function persist(next, texto) {
   try { localStorage.setItem(KEY, JSON.stringify(next)); }
   catch { aviso('Não foi possível salvar. Verifique o espaço disponível e faça um backup.'); return false; }
   items = next;
+  if (migrarSonhos()) sonhos.recarregar();
   renderListas();
   if (texto) aviso(texto, () => { if (persist(antes)) aviso('Desfeito.'); });
+  return true;
+}
+
+// Itens da antiga aba "Sonhos" viram sonhos do painel: primeiro grava a cópia no painel e só depois tira da lista.
+// Idempotente (mesmo id): se a segunda gravação falhar, a próxima abertura termina sem duplicar.
+function migrarSonhos() {
+  if (bloqueado || !items.some(x => x.tab === 'Sonhos')) return false;
+  let dreams;
+  try { dreams = JSON.parse(localStorage.getItem(VKEY) || '[]'); } catch { return false; }
+  if (!Array.isArray(dreams)) return false;
+  const r = migrarSonhosDaLista(items, dreams);
+  if (!r.migrados) return false;
+  try { localStorage.setItem(VKEY, JSON.stringify(r.dreams)); } catch { return false; }
+  try { localStorage.setItem(KEY, JSON.stringify(r.items)); items = r.items; } catch { /* fica na lista até a próxima vez */ }
   return true;
 }
 
@@ -57,11 +73,11 @@ function concluir(x, caixa) {
   const depois = caixasVisiveis(), alvo = depois.find(c => c.dataset.id === x.id) || depois[Math.min(Math.max(i, 0), depois.length - 1)];
   if (alvo) alvo.focus(); else focarTitulo();
 }
-function itemRow(x, today, naHoje) {
+function itemRow(x, today, naHoje, diaEscrito = false) {
   const sc = scopeOf(x);
   const partes = [el('span', { className: 'quem' }, icon(SCOPE_ICON[sc]), SCOPE_LABEL[sc]), x.area, naHoje ? '' : x.horizon,
     x.time ? el('time', { datetime: x.time, text: timeLabel(x.time) }) : '',
-    x.due && (x.due !== today || !naHoje) ? 'prazo ' + dueLabel(x.due, today) : '', naHoje && x.tab !== 'Hoje' ? x.tab : ''].filter(Boolean);
+    diaEscrito ? el('time', { datetime: x.due, text: diaCurto(x.due, today) }) : x.due && (x.due !== today || !naHoje) ? 'prazo ' + dueLabel(x.due, today) : '', naHoje && x.tab !== 'Hoje' ? x.tab : ''].filter(Boolean);
   const meta = el('span', { className: 'item-meta' });
   partes.forEach((p, i) => { if (i) meta.append(el('span', { className: 'sep', 'aria-hidden': 'true', text: '·' })); meta.append(p); });
   const caixa = el('input', { type: 'checkbox', className: 'caixa', 'data-id': x.id, 'aria-label': (x.done ? 'Reabrir: ' : 'Concluir: ') + x.title });
@@ -139,9 +155,12 @@ function renderHoje(today) {
 function renderListas() {
   const today = isoDay();
   renderHoje(today);
-  $('lista-planos').replaceChildren(...groupPlanos(items).map(g => el('section', { className: 'secao', 'aria-label': g.tab },
+  const proximos = proximosDias(items, today);
+  $('lista-planos').replaceChildren(...(proximos.length ? [el('section', { className: 'secao proximos', 'aria-labelledby': 't-proximos' },
+    el('h2', { className: 'secao-titulo', id: 't-proximos', text: 'Próximos dias' }),
+    el('ul', { className: 'lista' }, ...proximos.map(x => itemRow(x, today, false, true))))] : []),
+  ...groupPlanos(items).map(g => el('section', { className: 'secao', 'aria-label': g.tab },
     el('h2', { className: 'secao-titulo', text: g.tab }), lista(g.items, today, 'Nada aqui ainda.'))));
-  $('lista-sonhos').replaceChildren(lista(itemsForScreen(items, 'sonhos', today), today, 'Nenhum item de Sonhos na lista.'));
   $('lista-familia').replaceChildren(lista(itemsForScreen(items, 'familia', today), today, 'Nada anotado para a revisão da semana.'));
 }
 // Captura em uma linha: Enter grava na aba Hoje, o item entra no topo e o campo continua focado.
@@ -250,6 +269,7 @@ $('item-excluir').addEventListener('click', () => {
 });
 
 // ---------- Rotas ----------
+migrarSonhos();
 const sonhos = iniciarSonhos();
 function focarTitulo() {
   const h = document.querySelector('.tela:not([hidden]) h1');
@@ -305,15 +325,27 @@ $('pasteImport').addEventListener('click', () => {
   try { location.hash = 'import=' + encodeURIComponent(JSON.stringify(JSON.parse($('paste').value.trim()))); }
   catch { $('status').textContent = 'Código inválido.'; }
 });
-// Metas vindas do FiscalFlow: atualiza o item de Sonhos com o mesmo id ou cria um novo; nunca apaga.
+// Metas vindas do FiscalFlow: gravadas nos sonhos do painel pelo id (valor-alvo e prazo); meta nova vira sonho; nunca apaga.
 $('importGoals').addEventListener('change', async e => {
   const f = e.target.files[0];
   e.target.value = '';
   if (!f) return;
+  let antes, r;
   try {
-    const r = mergeGoals(items, JSON.parse(await f.text()));
-    if (persist(r.items, r.count + ' meta(s) do FiscalFlow em Sonhos')) $('status').textContent = r.count + ' meta(s) do FiscalFlow em Sonhos.';
-  } catch { $('status').textContent = 'Arquivo de metas inválido.'; }
+    migrarSonhos();
+    antes = localStorage.getItem(VKEY);
+    const dreams = JSON.parse(antes || '[]');
+    if (!Array.isArray(dreams)) throw Error();
+    r = mergeGoalsDreams(dreams, JSON.parse(await f.text()));
+  } catch { $('status').textContent = 'Arquivo de metas inválido. Nada foi alterado.'; return; }
+  try { localStorage.setItem(VKEY, JSON.stringify(r.dreams)); }
+  catch { $('status').textContent = 'Não foi possível salvar (espaço insuficiente). Nada foi alterado.'; return; }
+  sonhos.recarregar();
+  const msg = (r.count === 1 ? '1 meta do FiscalFlow' : r.count + ' metas do FiscalFlow') + ' nos Sonhos' + (r.created ? ' (' + r.created + (r.created === 1 ? ' nova)' : ' novas)') : '');
+  $('status').textContent = msg + '.';
+  aviso(msg, () => {
+    try { antes === null ? localStorage.removeItem(VKEY) : localStorage.setItem(VKEY, antes); sonhos.recarregar(); aviso('Desfeito.'); } catch { aviso('Não foi possível desfazer.'); }
+  });
 });
 
 // ---------- Cabeçalho ----------

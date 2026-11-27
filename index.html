@@ -34,7 +34,7 @@
 <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z"/><path d="M9.5 20.5V15h5v5.5"/></symbol>
 <symbol id="i-casal" viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="3"/><circle cx="16" cy="9.5" r="2.5"/><path d="M2.5 19.5c.6-3 2.9-4.8 6-4.8s5.4 1.8 6 4.8M15 14.6c2.9 0 5.4 1.6 6 4.9"/></symbol>
 <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
-<symbol id="i-volta" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol>
+<symbol id="i-opcoes" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/></symbol><symbol id="i-moedas" viewBox="0 0 24 24"><ellipse cx="12" cy="6.5" rx="7" ry="3"/><path d="M5 6.5v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5M5 11.5v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></symbol><symbol id="i-volta" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol>
 </defs></svg>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="app">
@@ -54,11 +54,10 @@
 <div id="lista-planos"></div>
 </section>
 <section class="tela" id="tela-sonhos" aria-labelledby="h-sonhos" hidden>
-<div class="titulo-tela"><h1 id="h-sonhos" tabindex="-1">Sonhos</h1><p>Painel de Visão do Futuro.</p></div>
-<label class="rotulo" for="vision-person">De quem é a visão?</label>
-<select class="campo" id="vision-person"></select>
-<div class="sonhos-grade" id="vision-list"></div>
-<section class="secao" aria-labelledby="t-sonhos-lista"><h2 class="secao-titulo" id="t-sonhos-lista">Anotados na lista</h2><div id="lista-sonhos"></div></section>
+<div class="titulo-tela"><h1 id="h-sonhos" tabindex="-1">Sonhos</h1><p>O que vocês querem viver, num lugar só.</p></div>
+<div class="chips filtros-sonhos" id="sonhos-filtros" role="group" aria-label="Mostrar sonhos de"></div>
+<p class="guardado" id="sonhos-guardado" hidden></p>
+<div class="sonhos" id="vision-list"></div>
 <details class="recolhido recolhido--cartao secao"><summary><span>Pessoas <span class="resumo-dica">· ficam só neste aparelho</span></span><svg class="i" aria-hidden="true" focusable="false"><use href="#i-baixo"/></svg></summary>
 <form class="dentro" id="vision-people"><label class="rotulo" for="vision-new-person">Nome de quem também sonha</label><input class="campo" id="vision-new-person" maxlength="40" autocomplete="off" required><button class="btn btn-contorno btn-bloco" type="submit">Adicionar pessoa</button></form></details>
 </section>
@@ -125,7 +124,7 @@
 <label class="grupo"><span class="rotulo">Prazo (opcional)</span><input class="campo" type="date" id="item-due"></label></div>
 <label class="check-campo"><input type="checkbox" class="caixa" id="item-night"><span>À noite <span class="resumo-dica">· também entra em “À noite” sem horário</span></span></label>
 <label class="grupo"><span class="rotulo">Nota</span><textarea class="campo campo--texto" id="item-notes" maxlength="4000"></textarea></label>
-<label class="grupo"><span class="rotulo">Onde fica</span><select class="campo" id="item-tab"><option>Hoje</option><option>Plano de vida</option><option>Família</option><option>Sonhos</option><option>Pendências</option><option>Revisão semanal</option></select></label>
+<label class="grupo"><span class="rotulo">Onde fica</span><select class="campo" id="item-tab"><option>Hoje</option><option>Plano de vida</option><option>Família</option><option>Pendências</option><option>Revisão semanal</option></select></label>
 </details>
 <div class="folha-acoes"><button class="btn btn-principal btn-bloco" id="item-salvar" type="submit">Anotar</button><button class="btn btn-contorno btn-bloco" id="item-amanha" type="button" hidden><svg class="i" aria-hidden="true" focusable="false"><use href="#i-volta"/></svg>Fica para amanhã</button><button class="btn btn-texto btn-texto--neutro btn-bloco" id="item-excluir" type="button" hidden>Excluir</button></div>
 </form>
@@ -140,13 +139,44 @@
 <label class="grupo"><span class="rotulo">Dimensão</span><input class="campo" id="vision-area" maxlength="60" placeholder="Ex.: saúde, fé, família"></label>
 <label class="grupo"><span class="rotulo">Horizonte</span><select class="campo" id="vision-horizon"><option>1 ano</option><option>5 anos</option><option>10 anos</option><option>20 anos</option><option>30 anos</option><option>Sem prazo</option></select></label>
 <details class="recolhido" id="vision-mais"><summary><span>Mais detalhes <span class="resumo-dica">· valor, prazo, foto</span></span><svg class="i" aria-hidden="true" focusable="false"><use href="#i-baixo"/></svg></summary>
+<label class="grupo"><span class="rotulo">Próximo passo (opcional)</span><input class="campo" id="vision-step" maxlength="200" autocomplete="off" placeholder="Ex.: pesquisar preços"></label>
 <label class="grupo"><span class="rotulo">Descrição</span><textarea class="campo campo--texto" id="vision-notes" maxlength="4000"></textarea></label>
 <label class="grupo"><span class="rotulo">Valor-alvo da meta (R$, opcional)</span><input class="campo" id="vision-target" type="number" min="0" step=".01" inputmode="decimal"></label>
 <label class="grupo"><span class="rotulo">Já reservado (R$)</span><input class="campo" id="vision-reserved" type="number" min="0" step=".01" inputmode="decimal"></label>
 <label class="grupo"><span class="rotulo">Prazo da meta</span><input class="campo" id="vision-due" type="date"></label>
 <label class="grupo"><span class="rotulo">Foto da galeria</span><input class="campo campo--arquivo" id="vision-photo" type="file" accept="image/*"></label>
+<img class="foto-previa" id="vision-previa" alt="Prévia da foto escolhida" hidden>
 </details>
 <div class="folha-acoes"><button class="btn btn-principal btn-bloco" id="vision-save" type="submit">Guardar sonho</button><button class="btn btn-texto btn-texto--neutro btn-bloco" id="vision-excluir" type="button" hidden>Excluir sonho</button></div>
+</form>
+</dialog>
+<dialog class="folha" id="folha-opcoes" aria-labelledby="folha-opcoes-titulo">
+<div class="folha-alca" aria-hidden="true"></div>
+<div class="folha-topo"><h2 id="folha-opcoes-titulo">Sonho</h2><button class="btn btn-texto btn-texto--neutro" type="button" data-fechar><svg class="i i--20" aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg>Fechar</button></div>
+<div class="opcoes-lista">
+<button class="btn btn-contorno btn-bloco" id="op-editar" type="button">Editar</button>
+<button class="btn btn-contorno btn-bloco" id="op-prazo" type="button">Mudar prazo</button>
+<button class="btn btn-contorno btn-bloco" id="op-pausar" type="button">Pausar</button>
+<button class="btn btn-texto btn-texto--neutro btn-bloco" id="op-excluir" type="button">Excluir</button>
+</div>
+</dialog>
+<dialog class="folha" id="folha-guardar" aria-labelledby="folha-guardar-titulo">
+<div class="folha-alca" aria-hidden="true"></div>
+<div class="folha-topo"><h2 id="folha-guardar-titulo">Guardar valor</h2><button class="btn btn-texto btn-texto--neutro" type="button" data-fechar><svg class="i i--20" aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg>Fechar</button></div>
+<form id="guardar-form" novalidate>
+<p class="dica-folha" id="guardar-contexto"></p>
+<label class="grupo"><span class="rotulo">Quanto vocês guardaram agora? (R$)</span><input class="campo" id="guardar-valor" type="number" min="0.01" step=".01" inputmode="decimal" required></label>
+<p class="dica" id="guardar-erro" hidden>Escreva um valor maior que zero.</p>
+<div class="folha-acoes"><button class="btn btn-principal btn-bloco" type="submit">Somar ao guardado</button></div>
+</form>
+</dialog>
+<dialog class="folha" id="folha-prazo" aria-labelledby="folha-prazo-titulo">
+<div class="folha-alca" aria-hidden="true"></div>
+<div class="folha-topo"><h2 id="folha-prazo-titulo">Mudar prazo</h2><button class="btn btn-texto btn-texto--neutro" type="button" data-fechar><svg class="i i--20" aria-hidden="true" focusable="false"><use href="#i-fechar"/></svg>Fechar</button></div>
+<form id="prazo-form" novalidate>
+<p class="dica-folha" id="prazo-contexto"></p>
+<label class="grupo"><span class="rotulo">Novo prazo</span><input class="campo" id="prazo-data" type="date"></label>
+<div class="folha-acoes"><button class="btn btn-principal btn-bloco" type="submit">Salvar prazo</button><button class="btn btn-texto btn-texto--neutro btn-bloco" id="prazo-sem" type="button">Ficar sem prazo</button></div>
 </form>
 </dialog>
 <script type="module" src="js/main.js"></script>
