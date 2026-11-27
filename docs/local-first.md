@@ -43,3 +43,31 @@ listas, folha de item, importações), `js/sonhos.js` (painel e pessoas), `js/ui
 lógica pura testada em `js/router.js`, `js/telas.js`, `js/itens.js`, `js/backup.js` e `js/goals.js`. `app.js`, `vision.js` e
 `style.css` saíram. Chaves e formato gravado não mudaram (`familia365-v1`, `familia365-vision-v1`, `familia365-people-v1`,
 `familia365-meta-v1`, `familia365-undo-v1`). Cache do service worker: `familia365-static-v8`.
+
+## Tela Hoje (2026-11-26, etapa 3 da nova interface)
+**Captura em uma linha:** "Adicionar para hoje…" no topo; Enter grava na aba Hoje (Para mim), o item entra no topo, aparece
+"Adicionado" com Desfazer e o campo continua focado. **Folha Anotar** (botão "+"): "Para quem?" (Para mim, Casal, Família),
+"Quando?" (Hoje, Semana, Algum dia) e "Mais detalhes" recolhido (área, horário, prazo, "À noite", nota, "Onde fica").
+"Quando?" escolhe a aba e o horizonte: Hoje → aba Hoje (ou prazo hoje, se outra aba for escolhida à mão); Semana → Pendências
+(7 dias); Algum dia → Plano de vida; em Família, a aba continua Revisão semanal. **Datas no texto**, reconhecidas no aparelho:
+"amanhã", "depois de amanhã" e dias da semana ("sábado", "na segunda", "até sexta"; o mesmo dia da semana é o da semana que vem)
+viram prazo e põem "Quando?" em Semana; o termo só sai do título se estiver no fim ou no começo da frase, sem "de" antes
+("presente de sábado" fica como está). Dia da semana solto no meio da frase não é data ("a segunda via"), e dois dias diferentes
+não viram nada. "Não é data" desfaz o reconhecimento; mexer no prazo à mão tem prioridade. Itens já existentes não são relidos.
+
+**Seções:** "Para hoje" (abertos da aba Hoje sem prazo ou com prazo hoje e, de qualquer aba, os com prazo hoje), "À noite"
+(horário a partir de 18h ou marcado "À noite"), cartão "Quer trazer para hoje?" (abertos com prazo vencido, menos Sonhos;
+"Trazer" põe o prazo em hoje; nada de vermelho ou "atrasado"), "Concluídos hoje" recolhido com contagem e, se houver,
+"Concluídos antes" (da aba Hoje, concluídos em outro dia ou em versões sem `done_at`, para não sumirem). Sem horário primeiro,
+na ordem da lista; depois os com horário, pela hora. Item da aba Hoje com prazo futuro (ex.: "Fica para amanhã") sai de Hoje até
+o dia. Concluir grava `done_at` e mostra "Concluído · Desfazer"; desmarcar reabre e apaga `done_at`. Cada item mostra de quem é
+(ícone e rótulo escrito; itens antigos contam como Para mim), área, horário e, para itens de outra aba, o nome da aba. Tocar no
+item abre "Editar" com Salvar, "Fica para amanhã" e Excluir. Hoje vazio: "Nada para hoje ainda. Que tal uma pequena ação?" com
+3 sugestões de um toque. Aos domingos, cartão "Revisão da semana" ("Agora não" guarda `revisao_agora_nao` em
+`familia365-meta-v1` e some até o domingo seguinte; "Começar" abre `#/familia`).
+
+**Dados:** campos novos opcionais nos itens, gravados só quando têm valor: `done_at` (ISO), `scope` (`eu`, `casal`, `familia`),
+`time` (HH:MM) e `night` (true). A validação dos itens, o `parseBackup` e o backup v2 aceitam e guardam esses campos; itens e
+backups antigos sem eles continuam válidos. Mesmas chaves no LocalStorage. Lógica pura em `js/datas.js` e `js/hoje.js` (e
+`js/itens.js`, `js/backup.js`), com testes em `tests/datas.test.mjs` e `tests/hoje.test.mjs`. Cache do service worker:
+`familia365-static-v9`.
