@@ -81,3 +81,42 @@ test('texto da meta do sonho (sem culpa quando o prazo passou)', () => {
 test('pessoas: base, extras do aparelho e as que aparecem nos sonhos, sem repetir', () => {
   assert.deepEqual(peopleList(['Avó', 'Casal', 7, ' '], [{ person: 'Tia' }, { person: 'Avó' }, {}]), ['Minha visão', 'Casal', 'Família', 'Avó', 'Tia']);
 });
+
+// ---------- Etapa 3: done_at, de quem é, horário ----------
+import { trazerParaHoje, ficaParaAmanha } from '../js/itens.js';
+const novo = { id: 'z', tab: 'Hoje', title: 'Regar', area: '', horizon: '', due: '', notes: '', done: false };
+
+test('concluir grava done_at (ISO); reabrir apaga done_at; original intacto', () => {
+  const agora = '2026-11-26T13:00:00.000Z';
+  const feito = toggleDone([novo], 'z', agora)[0];
+  assert.equal(feito.done, true);
+  assert.equal(feito.done_at, agora);
+  assert.ok(validItem(feito));
+  const aberto = toggleDone([feito], 'z', agora)[0];
+  assert.equal(aberto.done, false);
+  assert.ok(!('done_at' in aberto));
+  assert.ok(!('done_at' in novo));
+  assert.ok(!Number.isNaN(Date.parse(toggleDone([novo], 'z')[0].done_at)), 'sem data informada usa a hora atual');
+});
+
+test('trazer para hoje e fica para amanhã mudam só o prazo', () => {
+  assert.deepEqual(trazerParaHoje([{ ...novo, due: '2026-11-20' }], 'z', '2026-11-26')[0], { ...novo, due: '2026-11-26' });
+  assert.equal(ficaParaAmanha([novo], 'z', '2026-11-30')[0].due, '2026-12-01');
+  assert.equal(ficaParaAmanha([novo], 'outro', '2026-11-30')[0].due, '');
+});
+
+test('criar com de quem é, horário e noite; campos inválidos ficam de fora', () => {
+  const r = upsertItem([], { title: 'Ler juntos', tab: 'Hoje', area: '', horizon: 'Hoje', due: '', notes: '', scope: 'familia', time: '20:30', night: true }, { newId: 'n' });
+  assert.deepEqual(r.item, { id: 'n', tab: 'Hoje', done: false, title: 'Ler juntos', area: '', horizon: 'Hoje', due: '', notes: '', scope: 'familia', time: '20:30', night: true });
+  assert.ok(validItem(r.item));
+  const s = upsertItem([], { title: 'X', tab: 'Hoje', scope: 'chefe', time: '25:00', night: false }, { newId: 'm' }).item;
+  assert.deepEqual(Object.keys(s), ['id', 'tab', 'done', 'title', 'area', 'horizon', 'due', 'notes']);
+});
+
+test('editar mantém done_at do concluído; atStart põe o novo no topo', () => {
+  const feito = { ...novo, done: true, done_at: '2026-11-26T10:00:00.000Z' };
+  const r = upsertItem([feito], { title: 'Regar as plantas', tab: 'Hoje', scope: 'eu' }, { editingId: 'z' });
+  assert.equal(r.item.done_at, feito.done_at);
+  assert.equal(r.item.scope, 'eu');
+  assert.deepEqual(upsertItem([novo], { title: 'Primeiro', tab: 'Hoje' }, { newId: 'p', atStart: true }).items.map(x => x.id), ['p', 'z']);
+});

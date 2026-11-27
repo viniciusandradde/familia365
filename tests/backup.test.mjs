@@ -101,3 +101,25 @@ test('último backup em palavras', () => {
   assert.equal(describeLastBackup(new Date(2026, 10, 25, 23, 0).toISOString(), now).when, 'ontem');
   assert.equal(describeLastBackup('lixo', now), null);
 });
+
+// ---------- Etapa 3: campos novos opcionais nos itens ----------
+import { validItem } from '../js/backup.js';
+test('validItem: itens antigos continuam válidos; campos novos válidos passam e inválidos não', () => {
+  const velho = { id: 'v', tab: 'Hoje', done: false, title: 'Antigo', area: '', horizon: '', due: '', notes: '' };
+  assert.ok(validItem(velho));
+  assert.ok(validItem({ ...velho, done: true, done_at: '2026-11-26T10:00:00.000Z', scope: 'casal', time: '07:30', night: false }));
+  assert.ok(validItem({ ...velho, time: '', done_at: '' }));
+  for (const extra of [{ time: '25:00' }, { time: '7h' }, { scope: 'chefe' }, { done_at: 'ontem' }, { done_at: 5 }, { night: 'sim' }])
+    assert.equal(validItem({ ...velho, ...extra }), false, JSON.stringify(extra));
+});
+
+test('backup v2 guarda e devolve os campos novos; backup antigo da lista continua válido', () => {
+  const x = { id: 'n1', tab: 'Pendências', done: true, title: 'Ler', area: 'Família', horizon: '7 dias', due: '2026-11-26', notes: '',
+    done_at: '2026-11-26T21:00:00.000Z', scope: 'familia', time: '20:00', night: true };
+  const b = buildBackup({ items: [x], exportedAt: '2026-11-26T22:00:00.000Z' });
+  assert.deepEqual(b.items[0], x);
+  assert.deepEqual(parseBackup(JSON.stringify(b)).items[0], x);
+  const antigo = parseBackup(JSON.stringify({ version: 1, items: [{ id: 'a', tab: 'Hoje', done: false, title: 'Feira', area: '', horizon: '', due: '', notes: '' }] }));
+  assert.deepEqual(Object.keys(antigo.items[0]), ['id', 'tab', 'done', 'title', 'area', 'horizon', 'due', 'notes']);
+  assert.throws(() => parseBackup(JSON.stringify({ version: 1, items: [{ id: 'a', tab: 'Hoje', done: false, title: 'F', area: '', horizon: '', due: '', notes: '', scope: 'chefe' }] })));
+});

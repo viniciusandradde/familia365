@@ -13,7 +13,21 @@ const fail = msg => { throw new BackupError(msg); };
 // Mesmas regras de valid() do antigo app.js (hoje usadas por js/main.js e js/itens.js).
 export function validItem(x) {
   return !!x && typeof x.id === 'string' && typeof x.title === 'string' && x.title.length <= 200 && TABS.includes(x.tab) &&
-    typeof x.done === 'boolean' && ['area', 'horizon', 'due', 'notes'].every(k => typeof x[k] === 'string');
+    typeof x.done === 'boolean' && ['area', 'horizon', 'due', 'notes'].every(k => typeof x[k] === 'string') && validExtras(x);
+}
+// Campos opcionais da etapa 3 (itens e backups antigos não os têm): done_at (ISO), scope, time (HH:MM) e night.
+export const SCOPES = ['eu', 'casal', 'familia'];
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+const validExtras = x => (x.done_at === undefined || x.done_at === '' || (typeof x.done_at === 'string' && !Number.isNaN(Date.parse(x.done_at)))) &&
+  (x.scope === undefined || SCOPES.includes(x.scope)) && (x.time === undefined || x.time === '' || TIME.test(x.time)) &&
+  (x.night === undefined || typeof x.night === 'boolean');
+export function itemExtras(x) {
+  const e = {};
+  if (x.done && typeof x.done_at === 'string' && !Number.isNaN(Date.parse(x.done_at))) e.done_at = x.done_at;
+  if (SCOPES.includes(x.scope)) e.scope = x.scope;
+  if (TIME.test(x.time || '')) e.time = x.time;
+  if (x.night === true) e.night = true;
+  return e;
 }
 // Mesmas regras da restauração do painel do antigo vision.js.
 export function validDream(x) {
@@ -24,7 +38,7 @@ export function validDream(x) {
 }
 const validPerson = n => typeof n === 'string' && n.trim().length > 0 && n.length <= 40;
 
-const cleanItem = x => ({ id: x.id, tab: x.tab, done: x.done, title: x.title, area: x.area, horizon: x.horizon, due: x.due, notes: x.notes });
+const cleanItem = x => ({ id: x.id, tab: x.tab, done: x.done, title: x.title, area: x.area, horizon: x.horizon, due: x.due, notes: x.notes, ...itemExtras(x) });
 const cents = v => (Number.isSafeInteger(v) && v >= 0 ? v : 0);
 export function cleanDream(x) {
   const s = k => (typeof x[k] === 'string' ? x[k] : '');
