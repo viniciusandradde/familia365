@@ -120,3 +120,18 @@ test('editar mantém done_at do concluído; atStart põe o novo no topo', () => 
   assert.equal(r.item.scope, 'eu');
   assert.deepEqual(upsertItem([novo], { title: 'Primeiro', tab: 'Hoje' }, { newId: 'p', atStart: true }).items.map(x => x.id), ['p', 'z']);
 });
+
+import { upsertDream as upsertDream4 } from '../js/itens.js';
+test('sonho com foto nova no IndexedDB guarda só a referência; próximo passo opcional; campos novos preservados', () => {
+  const form = { title: 'Horta', person: 'Casal', area: '', horizon: '', notes: '', target: '', reserved: '', due: '', next_step: ' Escolher as mudas ' };
+  const r = upsertDream4([], form, { newId: 'd1', photoRef: 'ref-1' });
+  assert.equal(r.dream.photo, '');
+  assert.equal(r.dream.photo_ref, 'ref-1');
+  assert.equal(r.dream.next_step, 'Escolher as mudas');
+  const pausado = [{ ...r.dream, paused: true }];
+  const e = upsertDream4(pausado, { ...form, next_step: '' }, { editingId: 'd1' });
+  assert.equal(e.dream.photo_ref, 'ref-1');
+  assert.equal(e.dream.paused, true);
+  assert.equal('next_step' in e.dream, false);
+  assert.equal('photo_ref' in upsertDream4(pausado, form, { editingId: 'd1', photo: '' }).dream, false);
+});

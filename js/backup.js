@@ -34,7 +34,19 @@ export function validDream(x) {
   return !!x && ['id', 'person', 'title', 'area', 'horizon', 'notes', 'photo'].every(k => typeof x[k] === 'string') &&
     (!x.photo || PHOTO.test(x.photo)) &&
     ['target_cents', 'reserved_cents'].every(k => x[k] === undefined || (Number.isSafeInteger(x[k]) && x[k] >= 0)) &&
-    (x.due === undefined || x.due === '' || DAY.test(x.due));
+    (x.due === undefined || x.due === '' || DAY.test(x.due)) && validDreamExtras(x);
+}
+// Campos opcionais da etapa 4 (sonhos e backups antigos não os têm): pausado, alcançado, próximo passo, referência da
+// foto no IndexedDB e id do item da lista que virou este sonho.
+const optBool = v => v === undefined || typeof v === 'boolean';
+const optStr = (v, max) => v === undefined || (typeof v === 'string' && v.length <= max);
+const validDreamExtras = x => optBool(x.paused) && optBool(x.achieved) && optStr(x.next_step, 200) && optStr(x.photo_ref, 100) && optStr(x.origin_id, 200);
+export function dreamExtras(x) {
+  const e = {};
+  if (x.paused === true) e.paused = true;
+  if (x.achieved === true) e.achieved = true;
+  for (const [k, max] of [['next_step', 200], ['photo_ref', 100], ['origin_id', 200]]) if (typeof x[k] === 'string' && x[k] && x[k].length <= max) e[k] = x[k];
+  return e;
 }
 const validPerson = n => typeof n === 'string' && n.trim().length > 0 && n.length <= 40;
 
@@ -44,7 +56,7 @@ export function cleanDream(x) {
   const s = k => (typeof x[k] === 'string' ? x[k] : '');
   return { id: String(x.id), person: s('person'), title: s('title'), area: s('area'), horizon: s('horizon'), notes: s('notes'),
     photo: PHOTO.test(s('photo')) ? x.photo : '', target_cents: cents(x.target_cents), reserved_cents: cents(x.reserved_cents),
-    due: DAY.test(s('due')) ? x.due : '' };
+    due: DAY.test(s('due')) ? x.due : '', ...dreamExtras(x) };
 }
 const personKey = n => n.trim().toLocaleLowerCase('pt-BR');
 function uniquePeople(list) {
@@ -91,7 +103,7 @@ export function parseBackup(text) {
   fail('Arquivo não reconhecido como backup do Família365.');
 }
 
-const hasPhoto = x => !!x.photo;
+const hasPhoto = x => !!(x.photo || x.photo_ref);
 const extraPeople = list => list.filter(n => !BASE_PEOPLE.some(b => personKey(b) === personKey(n)));
 
 export function summarize(device, file) {

@@ -36,13 +36,17 @@ export function toCents(v) {
   return Number.isSafeInteger(n) && n > 0 ? n : 0;
 }
 
-// form: { title, person, area, horizon, notes, target, reserved, due }; photo: data URL nova, '' (sem foto) ou null (manter).
-export function upsertDream(dreams, form, { editingId = null, newId = '', photo = null } = {}) {
+// form: { title, person, area, horizon, notes, target, reserved, due, next_step? }; photo: data URL nova, '' (sem foto) ou
+// null (manter); photoRef: referência de uma foto nova já gravada no IndexedDB (tem prioridade sobre photo).
+export function upsertDream(dreams, form, { editingId = null, newId = '', photo = null, photoRef = '' } = {}) {
   const old = dreams.find(x => x.id === editingId);
   const dream = { ...(old || {}), id: old?.id || newId, person: str(form.person) || old?.person || BASE_PEOPLE[0],
     photo: photo === null ? old?.photo || '' : photo, title: str(form.title).trim().slice(0, 200), area: str(form.area),
     horizon: str(form.horizon), notes: str(form.notes), target_cents: toCents(form.target), reserved_cents: toCents(form.reserved),
     due: isoOrEmpty(form.due) };
+  if (photoRef) { dream.photo = ''; dream.photo_ref = photoRef; } else if (photo !== null) delete dream.photo_ref;
+  const passo = str(form.next_step).trim().slice(0, 200);
+  if (passo) dream.next_step = passo; else if (form.next_step !== undefined) delete dream.next_step;
   if (!dream.title || !dream.id) throw Error('sonho inválido');
   return { dreams: old ? dreams.map(x => (x.id === old.id ? dream : x)) : [...dreams, dream], dream, created: !old };
 }

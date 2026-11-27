@@ -56,6 +56,20 @@ export function dueLabel(due, today) {
   return y === ty ? d + '/' + String(m).padStart(2, '0') : String(d).padStart(2, '0') + '/' + String(m).padStart(2, '0') + '/' + y;
 }
 
+// Itens da aba Hoje com prazo futuro (ex.: "sábado"): aparecem em Planos, em "Próximos dias", pela data.
+export function proximosDias(items, today) {
+  const list = Array.isArray(items) ? items : [];
+  return list.map((x, i) => ({ x, i })).filter(({ x }) => x.tab === 'Hoje' && !x.done && /^\d{4}-\d{2}-\d{2}$/.test(x.due || '') && x.due > today)
+    .sort((a, b) => (a.x.due < b.x.due ? -1 : a.x.due > b.x.due ? 1 : a.i - b.i)).map(({ x }) => x);
+}
+const DIAS_CURTOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+// "sáb, 28/11" (com o ano quando não é o ano de hoje).
+export function diaCurto(due, today) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(due || '')) return '';
+  const [y, m, d] = due.split('-').map(Number), w = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return DIAS_CURTOS[w] + ', ' + String(d).padStart(2, '0') + '/' + String(m).padStart(2, '0') + (today && today.slice(0, 4) !== String(y) ? '/' + y : '');
+}
+
 export function openFirst(items) {
   return items.filter(x => !x.done).concat(items.filter(x => x.done));
 }

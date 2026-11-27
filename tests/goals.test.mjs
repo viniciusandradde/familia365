@@ -53,3 +53,34 @@ test('metas do FiscalFlow entram em Sonhos: atualiza pelo id, cria as novas, nun
   assert.deepEqual(r.items[2], { id: 'g2', tab: 'Sonhos', title: 'Carro R$ 1,00', area: '', horizon: '', due: '', notes: 'Meta do FiscalFlow', done: false });
   assert.throws(() => mergeGoals(list, { format: 'outro' }));
 });
+
+import { mergeGoalsDreams } from '../js/goals.js';
+const metas = goals => ({ format: 'familia365.goal', version: 1, goals });
+const sonhoP = { id: 'g1', person: 'Casal', title: 'Viagem', area: 'Lazer', horizon: '', notes: '', photo: '', target_cents: 100000, reserved_cents: 20000, due: '2027-01-01' };
+
+test('importar metas grava nos sonhos do painel pelo id: atualiza valor-alvo e prazo, nunca apaga', () => {
+  const outro = { ...sonhoP, id: 'x' };
+  const r = mergeGoalsDreams([sonhoP, outro], metas([{ id: 'g1', name: 'Viagem', target_cents: 600000, saved_cents: 1, due_date: '2027-12-01' }]));
+  assert.equal(r.dreams.length, 2);
+  assert.deepEqual(r.dreams[0], { ...sonhoP, target_cents: 600000, due: '2027-12-01' });
+  assert.equal(r.dreams[1], outro);
+  assert.equal(r.count, 1);
+  assert.equal(r.created, 0);
+});
+
+test('meta nova vira sonho; meta sem prazo mantém o prazo do sonho; meta inválida é ignorada', () => {
+  const r = mergeGoalsDreams([sonhoP], metas([{ id: 'g1', name: 'Viagem', target_cents: 50000, due_date: '' },
+    { id: 'g2', name: 'Reserva', target_cents: 300000, saved_cents: 10000, due_date: '2028-06-30' }, { id: 'g3', name: 'Sem valor', target_cents: 0 }]));
+  assert.equal(r.dreams[0].due, '2027-01-01');
+  assert.deepEqual(r.dreams[1], { id: 'g2', person: 'Família', title: 'Reserva', area: '', horizon: '', notes: 'Meta do FiscalFlow', photo: '',
+    target_cents: 300000, reserved_cents: 10000, due: '2028-06-30' });
+  assert.equal(r.count, 2);
+  assert.throws(() => mergeGoalsDreams([], { format: 'x' }));
+});
+
+test('exportar e importar de novo não duplica (mesmo id)', () => {
+  const f = goalsFile([], [sonhoP]);
+  const r = mergeGoalsDreams([sonhoP], f);
+  assert.equal(r.dreams.length, 1);
+  assert.equal(r.created, 0);
+});

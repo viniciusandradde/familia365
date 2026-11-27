@@ -47,3 +47,24 @@ export function mergeGoals(list, file) {
   }
   return { items: next, count };
 }
+
+// Metas vindas do FiscalFlow gravadas nos sonhos do painel (etapa 4): pelo id, atualiza valor-alvo e prazo (o prazo só
+// quando a meta traz um); meta nova vira sonho (com o valor já guardado que vier). Nunca apaga nem duplica.
+export function mergeGoalsDreams(dreams, file, { person = 'Família' } = {}) {
+  if (!file || file.format !== 'familia365.goal' || file.version !== 1 || !Array.isArray(file.goals)) throw Error('Arquivo de metas inválido');
+  const next = (dreams || []).slice();
+  let count = 0, created = 0;
+  for (const g of file.goals) {
+    if (!g || typeof g.id !== 'string' || !g.id || !g.name || !positive(g.target_cents)) continue;
+    const due = DAY.test(g.due_date || '') ? g.due_date : '';
+    const i = next.findIndex(d => d && (d.id === g.id || d.origin_id === g.id));
+    if (i >= 0) next[i] = { ...next[i], target_cents: g.target_cents, due: due || next[i].due || '' };
+    else {
+      next.push({ id: g.id, person, title: String(g.name).trim().slice(0, 200), area: '', horizon: '', notes: 'Meta do FiscalFlow', photo: '',
+        target_cents: g.target_cents, reserved_cents: Number.isSafeInteger(g.saved_cents) && g.saved_cents > 0 ? g.saved_cents : 0, due });
+      created++;
+    }
+    count++;
+  }
+  return { dreams: next, count, created };
+}

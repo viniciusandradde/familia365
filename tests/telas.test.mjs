@@ -76,3 +76,14 @@ test('abertos primeiro, concluídos depois, mantendo a ordem', () => {
   assert.deepEqual(ids(openFirst(items.slice(0, 3).concat(items[7]))), ['a', 'b', 'c', 'h']);
   assert.deepEqual(ids(openFirst([it('x', 'Hoje', { done: true }), it('y', 'Hoje')])), ['y', 'x']);
 });
+
+import { proximosDias, diaCurto } from '../js/telas.js';
+test('Próximos dias: itens da aba Hoje com prazo futuro, abertos, pela data', () => {
+  const it = (id, due, extra = {}) => ({ id, tab: 'Hoje', done: false, title: id, area: '', horizon: '', due, notes: '', ...extra });
+  const items = [it('sab', '2026-11-28'), it('hoje', '2026-11-26'), it('sem', ''), it('sex', '2026-11-27'), it('feito', '2026-11-27', { done: true }),
+    it('outra', '2026-11-27', { tab: 'Pendências' }), it('sab2', '2026-11-28'), it('ontem', '2026-11-25')];
+  assert.deepEqual(proximosDias(items, '2026-11-26').map(x => x.id), ['sex', 'sab', 'sab2']);
+  assert.equal(diaCurto('2026-11-28', '2026-11-26'), 'sáb, 28/11');
+  assert.equal(diaCurto('2027-01-04', '2026-11-26'), 'seg, 04/01/2027');
+  assert.equal(diaCurto('', '2026-11-26'), '');
+});
