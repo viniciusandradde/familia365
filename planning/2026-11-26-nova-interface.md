@@ -29,7 +29,7 @@ fictícios) fora do repositório, em `~/.local/share/familia365-design/design/`;
 3. ✅ **Hoje.** (feita em 26/11/2026; ver `docs/local-first.md`) Captura em uma linha (Enter), caixa de concluir de 48 px, "À noite", "Concluídos hoje" recolhido, `done_at`,
    botão "+" com a folha "Anotar" (Para quem: Para mim/Casal/Família; Quando: Hoje/Semana/Algum dia; "Mais detalhes"),
    reconhecimento local de "amanhã" e dias da semana.
-4. **Sonhos num lugar só.** Itens da aba "Sonhos" aparecem no painel; cartão com foto, `<progress>`, "≈ R$/mês até
+4. ✅ **Sonhos num lugar só.** (feita em 26/11/2026; ver `docs/local-first.md`) Itens da aba "Sonhos" aparecem no painel; cartão com foto, `<progress>`, "≈ R$/mês até
    mm/aaaa", "+ Guardar valor", "Pausar"/"Mudar prazo"; filtros Todos/Meu/Casal/Família; fotos no IndexedDB.
 5. **Família.** Revisão da semana guiada (5 passos, todos puláveis, "Modo conversa"), Conversa de domingo (3 perguntas,
    guarda só os combinados), pessoas com cor (paleta segura para daltonismo, sempre com o nome).

@@ -71,3 +71,38 @@ item abre "Editar" com Salvar, "Fica para amanhã" e Excluir. Hoje vazio: "Nada 
 backups antigos sem eles continuam válidos. Mesmas chaves no LocalStorage. Lógica pura em `js/datas.js` e `js/hoje.js` (e
 `js/itens.js`, `js/backup.js`), com testes em `tests/datas.test.mjs` e `tests/hoje.test.mjs`. Cache do service worker:
 `familia365-static-v9`.
+
+## Sonhos num lugar só (2026-11-26, etapa 4 da nova interface)
+**Uma tela só:** os itens antigos da aba "Sonhos" da lista viram sonhos do painel (`familia365-vision-v1`) com o mesmo id
+(e `origin_id` com o id do item). A cópia é gravada no painel primeiro e só depois o item sai da lista; a migração roda ao abrir
+o app e depois de gravar a lista, e é idempotente: um backup antigo restaurado depois devolve o item à lista, mas ele sai de novo
+sem virar outro sonho. Se já existe sonho com o mesmo id (a meta duplicada de antes), o item só completa valor-alvo, prazo e
+descrição que faltarem. Item concluído vira sonho alcançado (`achieved`). A folha "Anotar" não oferece mais a aba Sonhos.
+
+**Cartão:** foto grande com selo de escopo (Meu, Casal, Família ou o nome da pessoa) ou, sem foto, cartão compacto com uma
+ilustração neutra; título, área e prazo ("até dez/2027"). Com meta: "R$ 1.500 de R$ 6.000", `<progress>` com rótulo
+acessível, "≈ R$ 346/mês até dez/2027" (aporte simples, sem juros: falta ÷ meses até o prazo) e "+ Guardar valor" (folha curta
+que soma ao já guardado). Sem meta: o próximo passo (`next_step`, novo campo opcional na folha do sonho) ou "Anotar um passo".
+Menu "⋯" (folha de opções): Editar, Mudar prazo (ou ficar sem prazo), Pausar/Retomar e Excluir (com Desfazer). Pausado não
+cobra aporte e mostra "Pausado. Retome quando fizer sentido."; meta alcançada mostra "Vocês chegaram lá."; prazo passado
+mostra "Quer ajustar a data?" (abre Mudar prazo). Nada em vermelho; os cartões não esticam até a altura do vizinho.
+**Filtros** Todos / Meu / Casal / Família / cada pessoa e a linha "Já guardado: R$ X em N sonhos" (do filtro escolhido).
+
+**Fotos no IndexedDB** (banco `familia365-fotos`, API nativa): foto nova é reduzida (800 px, JPEG) e gravada no IndexedDB; o
+sonho guarda só `photo_ref`. Sem IndexedDB, fica em base64 como antes. Fotos antigas em base64 continuam aparecendo e vão para
+o IndexedDB aos poucos (3 por abertura, só se nada mudou no meio). Fotos que nenhum sonho nem a cópia de "Desfazer a última
+restauração" usam são apagadas ao abrir. **Backup completo:** a exportação lê as fotos do IndexedDB e põe em base64 no arquivo
+(formato v2 de sempre, sem `photo_ref`); a restauração grava as fotos do arquivo no IndexedDB antes de gravar os sonhos.
+
+**Metas do FiscalFlow:** "Importar metas" grava nos sonhos do painel pelo id (atualiza valor-alvo e prazo, este só quando a meta
+traz um; meta nova vira sonho de Família com o valor já guardado; nunca apaga), com Desfazer; acabou a duplicação de uma meta
+com o mesmo id de um sonho. "Exportar metas" usa o painel.
+
+**Planos › Próximos dias:** itens da aba Hoje com prazo futuro (antes sumiam até o dia) aparecem no topo de Planos, pela data,
+com o dia escrito ("sáb, 28/11").
+
+**Dados:** campos novos opcionais nos sonhos, gravados só quando têm valor: `paused`, `achieved`, `next_step`, `photo_ref` e
+`origin_id`; a validação, o `parseBackup` e o backup v2 aceitam e guardam esses campos, e backups antigos continuam abrindo.
+Mesmas chaves no LocalStorage. Lógica pura em `js/painel.js` e `js/fotos.js` (e `js/goals.js`, `js/telas.js`, `js/itens.js`,
+`js/backup.js`), com testes em `tests/painel.test.mjs`, `tests/fotos.test.mjs` (armazenamento falso no lugar do IndexedDB) e
+nos testes existentes. Cache do service worker: `familia365-static-v10`.
