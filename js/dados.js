@@ -1,11 +1,11 @@
 // Seção "Dados e backup": backup completo (v2), restauração com prévia (Juntar ou Substituir tudo, com Desfazer)
 // e exportação de metas. Lê e grava as mesmas chaves que main.js e sonhos.js; depois de restaurar, recarrega a página
 // (os módulos guardam o estado em memória). A tela é a rota #/dados.
-import { buildBackup, parseBackup, summarize, merge, replace, describeLastBackup, validItem, BackupError, MAX_BYTES } from './backup.js';
+import { buildBackup, parseBackup, summarize, merge, replace, describeLastBackup, validItem, cleanFamilia, BackupError, MAX_BYTES } from './backup.js';
 import { goalsFile } from './goals.js';
 import { abrirFotos, fotosParaBackup, moverFotos } from './fotos.js';
 
-const K = { items: 'familia365-v1', dreams: 'familia365-vision-v1', people: 'familia365-people-v1', meta: 'familia365-meta-v1', undo: 'familia365-undo-v1' };
+const K = { items: 'familia365-v1', dreams: 'familia365-vision-v1', people: 'familia365-people-v1', familia: 'familia365-familia-v1', meta: 'familia365-meta-v1', undo: 'familia365-undo-v1' };
 const FLASH = 'familia365-aviso';
 const $ = id => document.getElementById(id);
 const say = (id, text) => { $(id).textContent = text; };
@@ -22,12 +22,15 @@ function readArray(key) {
 function readDevice() {
   const items = readArray(K.items), dreams = readArray(K.dreams), people = readArray(K.people).filter(n => typeof n === 'string');
   if (!items.every(validItem) || !dreams.every(x => x && typeof x.id === 'string')) throw Error('dados locais');
-  return { items, dreams, people };
+  // Parte Família (etapa 5): cores e combinados vão no backup; o rascunho da revisão em andamento fica só no aparelho.
+  const f = readJSON(K.familia), familia = cleanFamilia(f);
+  if (f && f.rascunho) familia.rascunho = f.rascunho;
+  return { items, dreams, people, familia };
 }
 function readJSON(key) { try { const v = JSON.parse(store().getItem(key) || 'null'); return v && typeof v === 'object' ? v : null; } catch { return null; } }
 // Grava as três partes; se faltar espaço no meio, volta ao que estava.
 function writeState(s) {
-  const keys = ['items', 'dreams', 'people'], old = {};
+  const keys = ['items', 'dreams', 'people'].concat(s.familia ? ['familia'] : []), old = {};
   for (const k of keys) old[k] = store().getItem(K[k]);
   try { for (const k of keys) store().setItem(K[k], JSON.stringify(s[k])); }
   catch (e) {
@@ -107,7 +110,7 @@ function showPreview(device, parsed, file) {
   const s = summarize(device, parsed);
   $('restore-nome').textContent = KIND[parsed.kind] + (parsed.exportedAt ? ' de ' + longDate(parsed.exportedAt) : '');
   $('restore-sub').replaceChildren(file.name, document.createElement('br'), size(file.size));
-  const rows = [['Tarefas', s.items], ['Sonhos', s.dreams], ['Fotos', s.photos], ['Pessoas', s.people]].filter(([, r], i) => parsed.kind === 'v2' || r.file || r.device || i < 2);
+  const rows = [['Tarefas', s.items], ['Sonhos', s.dreams], ['Fotos', s.photos], ['Pessoas', s.people], ['Combinados', s.combinados]].filter(([, r], i) => parsed.kind === 'v2' || r.file || r.device || i < 2);
   $('restore-tabela').replaceChildren(...rows.map(([label, r]) => {
     const tr = document.createElement('tr'), th = document.createElement('th');
     th.scope = 'row'; th.textContent = label; tr.append(th);
@@ -154,7 +157,7 @@ $('restore-aplicar').onclick = async () => {
   let device;
   try { device = readDevice(); } catch { say('restore-status', 'Os dados deste aparelho não puderam ser lidos. Nada foi alterado.'); return; }
   const result = mode === 'juntar' ? merge(device, pending) : replace(device, pending);
-  if (mode === 'juntar' && !result.added.items && !result.added.dreams && !result.added.people) {
+  if (mode === 'juntar' && !result.added.items && !result.added.dreams && !result.added.people && !result.added.combinados) {
     hidePreview(); say('restore-status', 'Nada novo no arquivo: este aparelho já tinha tudo. Nada foi alterado.'); return;
   }
   // Cópia do estado atual antes de gravar (o "Desfazer" vale até a próxima restauração).
@@ -165,11 +168,11 @@ $('restore-aplicar').onclick = async () => {
   }
   // Fotos do arquivo vão para o IndexedDB e o sonho fica só com a referência (se não der, ficam em base64, como antes).
   const { dreams } = await moverFotos(result.dreams, await abrirFotos().catch(() => null));
-  try { writeState({ items: result.items, dreams, people: result.people }); }
+  try { writeState({ items: result.items, dreams, people: result.people, familia: result.familia }); }
   catch { try { store().removeItem(K.undo); } catch { /* segue */ } say('restore-status', 'Não foi possível gravar (espaço insuficiente neste aparelho). Nada foi alterado.'); return; }
   const a = result.added;
   flashAndReload(mode === 'juntar'
-    ? 'Dados juntados: entraram ' + plural(a.items, 'tarefa', 'tarefas') + ', ' + plural(a.dreams, 'sonho', 'sonhos') + ' (' + plural(a.photos, 'foto', 'fotos') + ') e ' + plural(a.people, 'pessoa', 'pessoas') + '. Nada foi apagado.'
+    ? 'Dados juntados: entraram ' + plural(a.items, 'tarefa', 'tarefas') + ', ' + plural(a.dreams, 'sonho', 'sonhos') + ' (' + plural(a.photos, 'foto', 'fotos') + ', ' + plural(a.people, 'pessoa', 'pessoas') + ' e ' + plural(a.combinados || 0, 'combinado', 'combinados') + '. Nada foi apagado.'
     : 'Pronto: o aparelho ficou igual ao arquivo. Guardamos uma cópia de como estava antes.');
 };
 
@@ -182,7 +185,7 @@ function renderUndo() {
 $('undo-fazer').onclick = () => {
   const u = readJSON(K.undo);
   if (!u) { renderUndo(); return; }
-  try { writeState({ items: u.items, dreams: u.dreams, people: u.people }); store().removeItem(K.undo); }
+  try { writeState({ items: u.items, dreams: u.dreams, people: u.people, familia: u.familia }); store().removeItem(K.undo); }
   catch { say('restore-status', 'Não foi possível desfazer agora. Nada foi alterado.'); return; }
   flashAndReload('Restauração desfeita: o aparelho voltou a ficar como estava antes.');
 };
